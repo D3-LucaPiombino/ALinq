@@ -65,7 +65,7 @@ namespace ALinq.Benchmark
 
         public static int Main(string[] arguments)
         {
-            Scenario01(1000 * 1000).Wait();
+            Scenario01(100 * 100).Wait();
             //Scenario02(1000 * 1000);
 
             //Console.ReadKey();

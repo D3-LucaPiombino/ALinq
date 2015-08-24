@@ -29,6 +29,10 @@ namespace ALinq.Tests
                 await sequence.Cast<string>().ToList();
                 Assert.Fail("No exception thrown");
             }
+            catch (InvalidCastException ex)
+            {
+                Assert.IsInstanceOfType(ex, typeof(InvalidCastException));
+            }
             catch (AggregateException ex)
             {
                Assert.IsInstanceOfType(ex.InnerException,typeof(InvalidCastException));
