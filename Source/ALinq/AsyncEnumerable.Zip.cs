@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.ExceptionServices;
 using System.Threading.Tasks;
 
 namespace ALinq
@@ -16,27 +17,25 @@ namespace ALinq
             {
                 var enumerator1 = enumerable1.GetEnumerator();
                 var enumerator2 = enumerable2.GetEnumerator();
-                var doContinue  = true;
 
+                ExceptionDispatchInfo edi = null;
                 try
                 {
-                    while( doContinue )
+                    while(await enumerator1.MoveNext().ConfigureAwait(false) && await enumerator2.MoveNext().ConfigureAwait(false))
                     {
-                        if (await enumerator1.MoveNext().ConfigureAwait(false) && await enumerator2.MoveNext().ConfigureAwait(false))
-                        {
-                            await producer.Yield(await merger(enumerator1.Current, enumerator2.Current).ConfigureAwait(false)).ConfigureAwait(false);
-                        }
-                        else
-                        {
-                            doContinue = false;
-                        }
+                        var merged = await merger(enumerator1.Current, enumerator2.Current).ConfigureAwait(false);
+                        await producer.Yield(merged).ConfigureAwait(false);
                     }
+                }
+                catch (Exception e)
+                {
+                    edi = ExceptionDispatchInfo.Capture(e);
                 }
                 finally
                 {
-                    enumerator1.Dispose();
-                    enumerator2.Dispose();
+                    await enumerator1.DisposeAsync(edi?.SourceException, enumerator2);
                 }
+                edi?.Throw();
             });
         }
     }

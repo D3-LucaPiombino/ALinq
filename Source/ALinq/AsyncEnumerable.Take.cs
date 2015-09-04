@@ -19,14 +19,22 @@ namespace ALinq
                     if (counter < count)
                     {
                         await producer.Yield(state.Item).ConfigureAwait(false);
+                        counter++;
                     }
-
-                    counter++;
+                    else
+                    {
+                        state.Break();
+                    }
                 }).ConfigureAwait(false);
             });
         }
 
         public static IAsyncEnumerable<T> TakeWhile<T>(this IAsyncEnumerable<T> enumerable, Func<T, Task<bool>> predicate)
+        {
+            return TakeWhile(enumerable, (item, index) => predicate(item));
+        }
+
+        public static IAsyncEnumerable<T> TakeWhile<T>(this IAsyncEnumerable<T> enumerable, Func<T, bool> predicate)
         {
             return TakeWhile(enumerable, (item, index) => predicate(item));
         }
@@ -53,6 +61,32 @@ namespace ALinq
                         await producer.Yield(state.Item).ConfigureAwait(false);
                     }
                 }).ConfigureAwait(false);
+            });
+        }
+
+        public static IAsyncEnumerable<T> TakeWhile<T>(this IAsyncEnumerable<T> enumerable, Func<T, long, bool> predicate)
+        {
+            if (enumerable == null) throw new ArgumentNullException("enumerable");
+            if (predicate == null) throw new ArgumentNullException("predicate");
+
+            var doYield = true;
+
+            return Create<T>(async producer =>
+            {
+                await enumerable.ForEach(async state =>
+                {
+                    if (doYield && !predicate(state.Item, state.Index))
+                    {
+                        doYield = false;
+                        state.Break();
+                    }
+
+                    if (doYield)
+                    {
+                        await producer.Yield(state.Item).ConfigureAwait(false);
+                    }
+                })
+                .ConfigureAwait(false);
             });
         }
     }

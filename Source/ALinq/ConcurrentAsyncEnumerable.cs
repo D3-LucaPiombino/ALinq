@@ -23,4 +23,39 @@ namespace ALinq
             this.producerFunc = producerFunc;
         }
     }
+
+
+    internal class EmptyAsyncEnumerable<T> : IAsyncEnumerable<T>
+    {
+        private class EmptyAsyncEnumerator : IAsyncEnumerator<T>
+        {
+            public T Current { get { throw new InvalidOperationException("Cannot call Current on an empty enumerable."); } }
+
+            object IAsyncEnumerator.Current => Current;
+
+            public Task<bool> MoveNext()
+            {
+                return Task.FromResult(false);
+            }
+        }
+
+        private static EmptyAsyncEnumerator _empty = new EmptyAsyncEnumerator();
+
+        public IAsyncEnumerator<T> GetEnumerator()
+        {
+            return _empty;
+        }
+
+        IAsyncEnumerator IAsyncEnumerable.GetEnumerator()
+        {
+            return _empty;
+        }
+
+        private EmptyAsyncEnumerable()
+        {
+
+        }
+
+        public static IAsyncEnumerable<T> Instance = new EmptyAsyncEnumerable<T>();
+    }
 }

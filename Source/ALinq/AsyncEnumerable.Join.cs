@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -27,7 +28,7 @@ namespace ALinq
             if (resultSelector == null) throw new ArgumentNullException("resultSelector");
             if (comparer == null) throw new ArgumentNullException("comparer");
 
-            var innerDictionary = new Dictionary<TKey, List<TInner>>(comparer);
+            var innerDictionary = new ConcurrentDictionary<TKey, List<TInner>>(comparer);
 
             return Create<TResult>(async producer =>
             {
@@ -35,30 +36,27 @@ namespace ALinq
                 await inner.ForEach(async state =>
                 {
                     var innerKey = await innerKeySelector(state.Item).ConfigureAwait(false);
-                    if ( !innerDictionary.ContainsKey(innerKey))
-                    {
-                        List<TInner> innerList = null;
-                        if ( innerDictionary.TryGetValue(innerKey,out innerList))
-                        {
-                            innerList.Add(state.Item);
-                        }
-                        else
-                        {
-                            innerList = new List<TInner>() {state.Item};
-                            innerDictionary.Add(innerKey,innerList);
-                        }
-                    }
-                }).ConfigureAwait(false);
 
-                await outer.ForEach(async state =>
+                    innerDictionary.AddOrUpdate(innerKey,
+                        k => new List<TInner>() { state.Item },
+                        (k, current) => {
+                            current.Add(state.Item);
+                            return current;
+                        }
+                    );
+
+                })
+                .ConfigureAwait(false);
+
+                await outer.ForEach(async (TOuter item, long _) =>
                 {
-                    var outerKey = await outerKeySelector(state.Item).ConfigureAwait(false);
+                    var outerKey = await outerKeySelector(item).ConfigureAwait(false);
                     List<TInner> innerList;
                     if (innerDictionary.TryGetValue(outerKey, out innerList))
                     {
                         foreach( var innerItem in innerList )
                         {
-                            var result = await resultSelector(state.Item, innerItem).ConfigureAwait(false);
+                            var result = await resultSelector(item, innerItem).ConfigureAwait(false);
                             await producer.Yield(result).ConfigureAwait(false);
                         }
                     }

@@ -129,5 +129,65 @@ namespace ALinq
 
             return averageFunction(accumulator, counter);
         }
+
+
+
+
+
+
+
+
+        // synchronous
+
+        public static Task<int> Average<T>(this IAsyncEnumerable<T> enumerable, Func<T, int> selector)
+        {
+            return AverageCore(enumerable.Select(selector), (current, next) => current + next, (sum, counter) => sum / (int)counter);
+        }
+
+        public static async Task<int> Average<T>(this IAsyncEnumerable<T> enumerable, Func<T, int?> selector)
+        {
+            return (await AverageCore(enumerable.Select(selector), 0, (current, next) => next.HasValue ? current + next.Value : current, (sum, counter) => sum / (int?)counter).ConfigureAwait(false)).Value;
+        }
+
+        public static Task<long> Average<T>(this IAsyncEnumerable<T> enumerable, Func<T, long> selector)
+        {
+            return AverageCore(enumerable.Select(selector), (current, next) => current + next, (sum, counter) => sum / counter);
+        }
+
+        public static async Task<long> Average<T>(this IAsyncEnumerable<T> enumerable, Func<T, long?> selector)
+        {
+            return (await AverageCore(enumerable.Select(selector), 0L, (current, next) => next.HasValue ? current + next.Value : current, (sum, counter) => sum / counter).ConfigureAwait(false)).Value;
+        }
+
+        public static Task<float> Average<T>(this IAsyncEnumerable<T> enumerable, Func<T, float> selector)
+        {
+            return AverageCore(enumerable.Select(selector), (current, next) => current + next, (sum, counter) => sum / counter);
+        }
+
+        public static async Task<float> Average<T>(this IAsyncEnumerable<T> enumerable, Func<T, float?> selector)
+        {
+            return (await AverageCore(enumerable.Select(selector), 0.0f, (current, next) => next.HasValue ? current + next.Value : current, (sum, counter) => sum / counter).ConfigureAwait(false)).Value;
+        }
+
+        public static Task<double> Average<T>(this IAsyncEnumerable<T> enumerable, Func<T, double> selector)
+        {
+            return AverageCore(enumerable.Select(selector), (current, next) => current + next, (sum, counter) => sum / counter);
+        }
+
+        public static async Task<double> Average<T>(this IAsyncEnumerable<T> enumerable, Func<T, double?> selector)
+        {
+            return (await AverageCore(enumerable.Select(selector), 0.0, (current, next) => next.HasValue ? current + next.Value : current, (sum, counter) => sum / counter).ConfigureAwait(false)).Value;
+        }
+
+        public static Task<decimal> Average<T>(this IAsyncEnumerable<T> enumerable, Func<T, decimal> selector)
+        {
+            return AverageCore(enumerable.Select(selector), (current, next) => current + next, (sum, counter) => sum / counter);
+        }
+
+        public static async Task<decimal> Average<T>(this IAsyncEnumerable<T> enumerable, Func<T, decimal?> selector)
+        {
+            return (await AverageCore(enumerable.Select(selector), 0.0m, (current, next) => next.HasValue ? current + next.Value : current, (sum, counter) => sum / counter).ConfigureAwait(false)).Value;
+        }
+
     }
 }

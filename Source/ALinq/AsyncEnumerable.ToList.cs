@@ -13,12 +13,9 @@ namespace ALinq
 
             var result = new List<T>();
 
-#pragma warning disable 1998
-            await enumerable.ForEach(async item => 
-            {
-                result.Add(item);
-            }).ConfigureAwait(false);
-#pragma warning restore 1998
+            await enumerable
+                .ForEach((item,_) => result.Add(item))
+                .ConfigureAwait(false);
 
             return result;
         }

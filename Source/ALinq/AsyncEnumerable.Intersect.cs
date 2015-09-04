@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 
 namespace ALinq
@@ -18,18 +19,17 @@ namespace ALinq
 
             return Create<T>(async producer =>
             {
-                var set = new HashSet<T>();
-#pragma warning disable 1998
-                await second.ForEach(async item => set.Add(item)).ConfigureAwait(false);
-#pragma warning restore 1998
+                var set = new ConcurrentDictionary<T,bool>(comparer);
+                await second.ForEach((item,_) => set.TryAdd(item, true)).ConfigureAwait(false);
 
                 await first.ForEach(async item =>
                 {
-                    if (set.Contains(item))
+                    if (!set.TryAdd(item, true))
                     {
                         await producer.Yield(item).ConfigureAwait(false);
                     }
-                }).ConfigureAwait(false);
+                })
+                .ConfigureAwait(false);
             });
         }
     }

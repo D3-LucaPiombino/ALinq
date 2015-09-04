@@ -13,11 +13,27 @@ namespace ALinq
             await notificationFunc(item).ConfigureAwait(false);
         }
 
-        internal ConcurrentAsyncProducer(Func<T,Task> notificationFunc)
+        internal ConcurrentAsyncProducer(Func<T,Task> notificationFunc, CancellationToken cancellationToken)
         {
             if (notificationFunc == null) throw new ArgumentNullException("notificationFunc");
 
             this.notificationFunc = notificationFunc;
+            CancellationToken = cancellationToken;
+        }
+
+        public CancellationToken CancellationToken { get; private set; }
+
+        public bool EnumerationCancelled
+        {
+            get
+            {
+                return CancellationToken.IsCancellationRequested;
+            }
+        }
+
+        public void ThrowIfCancellationRequested()
+        {
+            CancellationToken.ThrowIfCancellationRequested();
         }
     }
 }

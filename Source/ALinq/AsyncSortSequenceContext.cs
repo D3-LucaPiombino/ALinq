@@ -10,6 +10,7 @@ namespace ALinq
         private readonly IComparer<TKey>            comparer;
         private TKey[]                              keys;
 
+        //[ConfigureAwait(false)]
         internal override async Task Initialize(TElement[] elements)
         {
             if (ChildContext != null)
@@ -42,7 +43,12 @@ namespace ALinq
             return descending ? -comparison : comparison;
         }
 
-        public AsyncSortSequenceContext(AsyncSortContext<TElement> childContext,Func<TElement, Task<TKey>> keySelector, IComparer<TKey> comparer, bool descending)
+        public AsyncSortSequenceContext(
+            AsyncSortContext<TElement> childContext,
+            Func<TElement, Task<TKey>> keySelector, 
+            IComparer<TKey> comparer,
+            bool descending
+        )
             : base(childContext,@descending)
         {
             this.keySelector    = keySelector;

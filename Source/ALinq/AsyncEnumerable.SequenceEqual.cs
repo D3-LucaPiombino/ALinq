@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.ExceptionServices;
 using System.Threading.Tasks;
 
 namespace ALinq
@@ -21,6 +22,7 @@ namespace ALinq
             var enumerator1 = enumerable1.GetEnumerator();
             var enumerator2 = enumerable2.GetEnumerator();
 
+            ExceptionDispatchInfo edi = null;
             try
             {
                 while (true)
@@ -45,11 +47,17 @@ namespace ALinq
                     }
                 }
             }
+            catch(Exception e)
+            {
+                edi = ExceptionDispatchInfo.Capture(e);
+            }
             finally
             {
-                enumerator1.Dispose();
-                enumerator2.Dispose();
+                await enumerator1.DisposeAsync(edi?.SourceException, enumerator2);
             }
+
+            edi?.Throw();
+            return false;
         }
     }
 }

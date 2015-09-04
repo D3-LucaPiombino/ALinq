@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 
 namespace ALinq
 {
@@ -6,6 +7,8 @@ namespace ALinq
     {
         object      Current { get; }
         Task<bool>  MoveNext();
+
+        // Task<bool> MoveNext(CancellationToken cancellationToken, Exception e);
     }
 
     public interface IAsyncEnumerator<out T> : IAsyncEnumerator

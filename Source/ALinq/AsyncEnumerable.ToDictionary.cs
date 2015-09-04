@@ -7,39 +7,80 @@ namespace ALinq
 {
     public static partial class AsyncEnumerable
     {
-        public static async Task<IDictionary<TKey, TElement>> ToDictionary<TSource, TKey, TElement>(this IAsyncEnumerable<TSource> source,
-                                                                                                    Func<TSource, Task<TKey>> keySelector,
-                                                                                                    Func<TSource, Task<TElement>> elementSelector)
+        public static async Task<IDictionary<TKey, TSource>> ToDictionary<TSource, TKey>(
+            this IAsyncEnumerable<TSource> source,
+            Func<TSource, Task<TKey>> keySelector,
+            IEqualityComparer<TKey> comparer = null
+        )
         {
-            return await ToDictionary(source, keySelector, elementSelector, EqualityComparer<TKey>.Default).ConfigureAwait(false);
+            return await ToDictionary(
+                source, 
+                keySelector,
+                e => Task.FromResult(e), 
+                comparer
+            )
+            .ConfigureAwait(false);
         }
 
-        public static async Task<IDictionary<TKey, TSource>> ToDictionary<TSource, TKey>(this IAsyncEnumerable<TSource> source,
-                                                                                         Func<TSource, Task<TKey>> keySelector)
+        public static async Task<IDictionary<TKey, TElement>> ToDictionary<TSource, TKey, TElement>(
+            this IAsyncEnumerable<TSource> source,
+            Func<TSource, TKey> keySelector,
+            Func<TSource, Task<TElement>> elementSelector,
+            IEqualityComparer<TKey> comparer = null)
         {
-            return await ToDictionary(source, keySelector, EqualityComparer<TKey>.Default).ConfigureAwait(false);
+            return await ToDictionary(
+                source,
+                s => Task.FromResult(keySelector(s)),
+                elementSelector,
+                comparer
+            )
+            .ConfigureAwait(false);
         }
 
-        public static async Task<IDictionary<TKey, TSource>> ToDictionary<TSource, TKey>(this IAsyncEnumerable<TSource> source,
-                                                                                                    Func<TSource, Task<TKey>> keySelector,
-                                                                                                    IEqualityComparer<TKey> comparer)
+        public static async Task<IDictionary<TKey, TElement>> ToDictionary<TSource, TKey, TElement>(
+            this IAsyncEnumerable<TSource> source,
+            Func<TSource, Task<TKey>> keySelector,
+            Func<TSource, TElement> elementSelector,
+            IEqualityComparer<TKey> comparer = null)
         {
-#pragma warning disable 1998
-            return await ToDictionary(source, keySelector, async e => e, comparer).ConfigureAwait(false);
-#pragma warning restore 1998
+            return await ToDictionary(
+                source,
+                keySelector,
+                s => Task.FromResult(elementSelector(s)),
+                comparer
+            )
+            .ConfigureAwait(false);
         }
 
-        public static async Task<IDictionary<TKey, TElement>> ToDictionary<TSource, TKey, TElement>(this IAsyncEnumerable<TSource> source,
-                Func<TSource, Task<TKey>> keySelector,
-	            Func<TSource, Task<TElement>> elementSelector,
-	            IEqualityComparer<TKey> comparer)
+        public static async Task<IDictionary<TKey, TElement>> ToDictionary<TSource, TKey, TElement>(
+            this IAsyncEnumerable<TSource> source,
+            Func<TSource, TKey> keySelector,
+            Func<TSource, TElement> elementSelector,
+            IEqualityComparer<TKey> comparer = null)
+        {
+            return await ToDictionary(
+                source, 
+                s => Task.FromResult(keySelector(s)), 
+                s => Task.FromResult(elementSelector(s)),
+                comparer
+            )
+            .ConfigureAwait(false);
+        }
+
+        // ---
+
+        public static async Task<IDictionary<TKey, TElement>> ToDictionary<TSource, TKey, TElement>(
+            this IAsyncEnumerable<TSource> source,
+            Func<TSource, Task<TKey>> keySelector,
+	        Func<TSource, Task<TElement>> elementSelector,
+	        IEqualityComparer<TKey> comparer = null)
         {
             if (source == null) throw new ArgumentNullException("source");
             if (keySelector == null) throw new ArgumentNullException("keySelector");
             if (elementSelector == null) throw new ArgumentNullException("elementSelector");
             if (comparer == null) throw new ArgumentNullException("comparer");
 
-            var result = new Dictionary<TKey, TElement>(comparer);
+            var result = new Dictionary<TKey, TElement>(comparer ?? EqualityComparer<TKey>.Default);
 
             await source.ForEach(async item =>
             {

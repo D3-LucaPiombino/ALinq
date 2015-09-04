@@ -7,12 +7,15 @@ namespace ALinq
     {
         public static async Task<T> Last<T>(this IAsyncEnumerable<T> enumerable)
         {
-#pragma warning disable 1998
-            return await First(enumerable.Reverse(), async item => true).ConfigureAwait(false);
-#pragma warning restore 1998
+            return await First(enumerable.Reverse(), item => true).ConfigureAwait(false);
         }
 
         public static async Task<T> Last<T>(this IAsyncEnumerable<T> enumerable, Func<T, Task<bool>> predicate)
+        {
+            return await First(enumerable.Reverse(), predicate).ConfigureAwait(false);
+        }
+
+        public static async Task<T> Last<T>(this IAsyncEnumerable<T> enumerable, Func<T, bool> predicate)
         {
             return await First(enumerable.Reverse(), predicate).ConfigureAwait(false);
         }
@@ -23,6 +26,11 @@ namespace ALinq
         }
 
         public static Task<T> LastOrDefault<T>(this IAsyncEnumerable<T> enumerable, Func<T, Task<bool>> predicate)
+        {
+            return FirstOrDefault(enumerable.Reverse(), predicate);
+        }
+
+        public static Task<T> LastOrDefault<T>(this IAsyncEnumerable<T> enumerable, Func<T, bool> predicate)
         {
             return FirstOrDefault(enumerable.Reverse(), predicate);
         }

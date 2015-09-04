@@ -17,6 +17,8 @@
     <IsCodedUITest>False</IsCodedUITest>
     <TestProjectType>UnitTest</TestProjectType>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -64,6 +66,7 @@
   </Choose>
   <ItemGroup>
     <Compile Include="AsyncEnumerableAllTests.cs" />
+    <Compile Include="AsyncEnumerableTests.cs" />
     <Compile Include="AsyncEnumerableAnyTests.cs" />
     <Compile Include="AsyncEnumerableAverageTests.cs" />
     <Compile Include="AsyncEnumerableCreateTests.cs" />

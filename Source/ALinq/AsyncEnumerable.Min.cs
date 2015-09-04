@@ -113,8 +113,8 @@ namespace ALinq
             var setOnce     = false;
             var accumulator = default(T);
 
-#pragma warning disable 1998
-            await enumerable.ForEach(async value =>
+
+            await enumerable.ForEach((value,_) =>
             {
                 if ( !setOnce )
                 {
@@ -128,10 +128,58 @@ namespace ALinq
                         accumulator = value;
                     }
                 }
-            }).ConfigureAwait(false);
-#pragma warning restore 1998
+            })
+            .ConfigureAwait(false);
+
 
             return accumulator;
+        }
+
+
+
+        public static async Task<int> Min<T>(this IAsyncEnumerable<T> enumerable, Func<T, int?> selector)
+        {
+            return (await MinCore(enumerable.Select(selector), (current, next) => next.HasValue && next.Value < current).ConfigureAwait(false)).Value;
+        }
+
+        public static Task<long> Min<T>(this IAsyncEnumerable<T> enumerable, Func<T, long> selector)
+        {
+            return MinCore(enumerable.Select(selector), (current, next) => next < current);
+        }
+
+        public static async Task<long> Min<T>(this IAsyncEnumerable<T> enumerable, Func<T, long?> selector)
+        {
+            return (await MinCore(enumerable.Select(selector), (current, next) => next.HasValue && next.Value < current).ConfigureAwait(false)).Value;
+        }
+
+        public static Task<float> Min<T>(this IAsyncEnumerable<T> enumerable, Func<T, float> selector)
+        {
+            return MinCore(enumerable.Select(selector), (current, next) => next < current);
+        }
+
+        public static async Task<float> Min<T>(this IAsyncEnumerable<T> enumerable, Func<T, float?> selector)
+        {
+            return (await MinCore(enumerable.Select(selector), (current, next) => next.HasValue && next.Value < current).ConfigureAwait(false)).Value;
+        }
+
+        public static Task<double> Min<T>(this IAsyncEnumerable<T> enumerable, Func<T, double> selector)
+        {
+            return MinCore(enumerable.Select(selector), (current, next) => next < current);
+        }
+
+        public static async Task<double> Min<T>(this IAsyncEnumerable<T> enumerable, Func<T, double?> selector)
+        {
+            return (await MinCore(enumerable.Select(selector), (current, next) => next.HasValue && next.Value < current).ConfigureAwait(false)).Value;
+        }
+
+        public static Task<decimal> Min<T>(this IAsyncEnumerable<T> enumerable, Func<T, decimal> selector)
+        {
+            return MinCore(enumerable.Select(selector), (current, next) => next < current);
+        }
+
+        public static async Task<decimal> Min<T>(this IAsyncEnumerable<T> enumerable, Func<T, decimal?> selector)
+        {
+            return (await MinCore(enumerable.Select(selector), (current, next) => next.HasValue && next.Value < current).ConfigureAwait(false)).Value;
         }
     }
 }

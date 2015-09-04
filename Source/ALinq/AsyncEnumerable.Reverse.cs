@@ -13,9 +13,9 @@ namespace ALinq
             return Create<T>(async producer =>
             {
                 var evaluatedSequence = new List<T>();
-#pragma warning disable 1998
-                await enumerable.ForEach(async item => evaluatedSequence.Add(item)).ConfigureAwait(false);
-#pragma warning restore 1998
+
+                await enumerable.ForEach((item,_) => evaluatedSequence.Add(item)).ConfigureAwait(false);
+
 
                 foreach (var item in ((IEnumerable<T>)evaluatedSequence).Reverse())
                 {

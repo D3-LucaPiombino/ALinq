@@ -16,5 +16,16 @@ namespace ALinq.Tests
 
             Assert.AreEqual(45,await sequence.Sum());
         }
+
+
+        [TestMethod]
+        public async Task SelectShouldWorkWhenUsedWithSynchronousLambdas()
+        {
+#pragma warning disable 1998
+            var sequence = AsyncEnumerable.Range(0, 10).Select(i => i.ToString(CultureInfo.InvariantCulture)).Select(s => int.Parse(s));
+#pragma warning restore 1998
+
+            Assert.AreEqual(45, await sequence.Sum());
+        }
     }
 }

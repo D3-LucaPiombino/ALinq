@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 
 namespace ALinq
@@ -15,18 +16,18 @@ namespace ALinq
             if (enumerable == null) throw new ArgumentNullException("enumerable");
             if (comparer == null) throw new ArgumentNullException("comparer");
 
-            var aggregator = new HashSet<T>(comparer);
+            var aggregator = new ConcurrentDictionary<T,bool>(comparer);
 
             return Create<T>(async producer =>
             {
                 await enumerable.ForEach(async item =>
                 {
-                    if ( !aggregator.Contains(item))
+                    if (aggregator.TryAdd(item, true))
                     {
                         await producer.Yield(item).ConfigureAwait(false);
-                        aggregator.Add(item);
                     }
-                }).ConfigureAwait(false);
+                })
+                .ConfigureAwait(false);
             });
         }
     }

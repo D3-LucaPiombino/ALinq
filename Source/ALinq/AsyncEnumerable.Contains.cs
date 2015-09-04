@@ -18,16 +18,16 @@ namespace ALinq
 
             var found = false;
 
-#pragma warning disable 1998
-            await enumerable.ForEach(async state =>
-#pragma warning restore 1998
+
+            await enumerable.ForEach(state =>
             {
                 if (comparer.Equals(state.Item, item))
                 {
                     found = true;
                     state.Break();
                 }
-            }).ConfigureAwait(false);
+            })
+            .ConfigureAwait(false);
 
             return found;
         }

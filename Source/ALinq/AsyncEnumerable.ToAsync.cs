@@ -48,5 +48,38 @@ namespace ALinq
                 }
             });
         }
+
+
+        public struct Maybe<T>
+        {
+            public bool HasValue;
+            public T Value;
+        }
+
+        public static IEnumerable<Task<Maybe<T>>> ToEnumerable<T>(this IAsyncEnumerable<T> source)
+        {
+            if (source == null) throw new ArgumentNullException("source");
+            var enumerator = source.GetEnumerator();
+            using (enumerator as IDisposable)
+            {
+                while (true)
+                {
+                    yield return enumerator.MoveNext()
+                        .ContinueWith(
+                            (t, state) =>
+                            {
+                                if (!t.Result)
+                                    return new Maybe<T>();
+                                return new Maybe<T>
+                                {
+                                    HasValue = true,
+                                    Value = ((IAsyncEnumerator<T>)state).Current
+                                };
+                            },
+                            enumerator
+                        );
+                }
+            }
+        }
     }
 }

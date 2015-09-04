@@ -19,7 +19,28 @@ namespace ALinq
                     result = false;
                     state.Break();
                 }
-            }).ConfigureAwait(false);
+            })
+            .ConfigureAwait(false);
+
+            return result;
+        }
+
+        public static async Task<bool> All<T>(this IAsyncEnumerable<T> enumerable, Func<T, bool> predicate)
+        {
+            if (enumerable == null) throw new ArgumentNullException("enumerable");
+            if (predicate == null) throw new ArgumentNullException("predicate");
+
+            var result = true;
+
+            await enumerable.ForEach(state =>
+            {
+                if (!predicate(state.Item))
+                {
+                    result = false;
+                    state.Break();
+                }
+            })
+            .ConfigureAwait(false);
 
             return result;
         }
