@@ -110,10 +110,10 @@ namespace ALinq
                 await enumerable.ForEach(async state =>
                 {
                     var collection = await collectionSelector(state.Item, (int)state.Index).ConfigureAwait(false);
-                    await collection.ForEach(async innerState =>
+                    await collection.ForEach(innerState =>
                     {
                         var result = resultSelector(state.Item, innerState.Item);
-                        await producer.Yield(result).ConfigureAwait(false);
+                        return  producer.Yield(result);
                     }).ConfigureAwait(false);
                 })
                 .ConfigureAwait(false);
@@ -135,10 +135,10 @@ namespace ALinq
                 await enumerable.ForEach(async state =>
                 {
                     var collection = collectionSelector(state.Item, (int)state.Index);
-                    await collection.ForEach(async innerState =>
+                    await collection.ForEach(innerState =>
                     {
                         var result = resultSelector(state.Item, innerState.Item);
-                        await producer.Yield(result).ConfigureAwait(false);
+                        return producer.Yield(result);
                     }).ConfigureAwait(false);
                 })
                 .ConfigureAwait(false);

@@ -91,8 +91,74 @@ var sequence = AsyncEnumerable.Create<int>(async producer =>
     {
         private class Signalable<TResult>
         {
-            private TaskCompletionSource<TResult> _tcs = new TaskCompletionSource<TResult>();
+            /// <summary>
+            /// Ensure that we run the continuations asynchronously
+            /// </summary>
+            /// <typeparam name="TRes"></typeparam>
+            private class Tcs<TRes> : TaskCompletionSource<TRes>
+            {
+                private static Action<object> _trySetResult = state =>
+                {
+                    var _this = (Tcs<TRes>)state;
+                    var result = _this._result;
+                    _this._result = default(TRes);
+                    _this.TrySetResult(result);
+                };
+
+                private static Action<object> _trySetException = state =>
+                {
+                    var _this = (Tcs<TRes>)state;
+                    var exception = _this._exception;
+                    _this._exception = null;
+                    _this.TrySetException(exception);
+                };
+
+                private TRes _result;
+                private Exception _exception;
+
+                [MethodImpl(MethodImplOptions.AggressiveInlining)]
+                public Task TrySetResultAsync(TRes result)
+                {
+                    _result = result;
+                    return InvokeAsync(_trySetResult);
+                }
+
+                [MethodImpl(MethodImplOptions.AggressiveInlining)]
+                public Task TrySetExceptionAsync(Exception exception)
+                {
+                    _exception = exception;
+                    return InvokeAsync(_trySetResult);
+                }
+
+                [MethodImpl(MethodImplOptions.AggressiveInlining)]
+                private Task InvokeAsync(Action<object> action)
+                {
+                    return System.Threading.Tasks.Task
+                        .Factory
+                        .StartNew(
+                            _trySetResult,
+                            this,
+                            CancellationToken.None,
+                            TaskCreationOptions.PreferFairness,
+                            TaskScheduler.Default
+                        );
+                }
+
+            }
+
+
+            private Tcs<TResult> _tcs = new Tcs<TResult>();
             private string _name;
+            private static Func<Task<TResult>,object,TResult> _refreshTaskCompletionSource = RefreshTaskCompletionSource;
+
+            private static TResult RefreshTaskCompletionSource(Task<TResult> previous, object state)
+            {
+                var _this = (Signalable<TResult>)state;
+                //Trace2($"[{_name}]: Signal received");
+                Interlocked.Exchange(ref _this._tcs, new Tcs<TResult>());
+                return previous.Result;
+            }
+
 
             [Conditional("DEBUG")]
             private void Trace2(string message)
@@ -100,60 +166,37 @@ var sequence = AsyncEnumerable.Create<int>(async producer =>
                 TraceInformation($"[{_name}]: {message}");
             }
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public Task Signal(TResult value = default(TResult))
             {
                 Trace2($"Signal {value} (enqueue)");
                 // Ensure continuations are run asynchronously
-                return Task
-                    .Factory
-                    .StartNew(
-                        s => 
-                        {
-                            var _this = ((Signalable<TResult>)s);
-                            Trace2($"Signal {value}");
-                            _this._tcs.TrySetResult(value);
-                        },
-                        this,
-                        CancellationToken.None,
-                        TaskCreationOptions.PreferFairness,
-                        TaskScheduler.Default
-                    );
+                return _tcs.TrySetResultAsync(value);
             }
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public void SignalAndForget(TResult value = default(TResult))
             {
-                Signal(value);
+                _tcs.TrySetResult(value);
+                //Signal(value);
             }
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public void SignalException(Exception exception)
             {
                 Trace2($"Signal {exception} (enqueue)");
+                _tcs.TrySetException(exception);
                 // Ensure continuations are run asynchronously
-                Task
-                    .Factory
-                    .StartNew(
-                        s =>
-                        {
-                            var _this = ((Signalable<TResult>)s);
-                            Trace2($"Signal {exception}");
-                            _this._tcs.TrySetException(exception);
-                        },
-                        this,
-                        CancellationToken.None,
-                        TaskCreationOptions.PreferFairness,
-                        TaskScheduler.Default
-                    );
+                //_tcs.TrySetExceptionAsync(exception);
             }
 
-            private async Task<TResult> WaitForSignal()
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public Task<TResult> WaitForSignal()
             {
-                Trace2($"[{_name}]: Wait for signal");
-                var result = await _tcs.Task.ConfigureAwait(false);
-                Trace2($"[{_name}]: Signal received");
-                Interlocked.Exchange(ref _tcs, new TaskCompletionSource<TResult>());
-                return result;
+                return _tcs.Task.ContinueWith(_refreshTaskCompletionSource, this);
             }
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public ConfiguredTaskAwaitable<TResult>.ConfiguredTaskAwaiter GetAwaiter()
             {
                 return WaitForSignal()
@@ -161,6 +204,7 @@ var sequence = AsyncEnumerable.Create<int>(async producer =>
                     .GetAwaiter(); // WHY???
             }
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public ConfiguredTaskAwaitable<TResult> ConfigureAwait(bool captureContext)
             {
                 return WaitForSignal()
@@ -204,20 +248,28 @@ var sequence = AsyncEnumerable.Create<int>(async producer =>
                 _producerWrapperTask = _producerWrapperTaskFactory(new WeakReference<ConcurrentAsyncEnumerator<T>>(this));
             }
 
-            var hasNext = await MoveProducerStateMachineAndWaitForValue().ConfigureAwait(false);
+
+            var hasNext = await MoveProducerStateMachineAndWaitForValue()
+                .ConfigureAwait(false); // Run the rest of the state machine without the synchronization context.
+
             if(!hasNext)
             {
-                // Marshal exceptions and cancellation back to the consumer
-                await _producerWrapperTask.ConfigureAwait(false);
+                // Marshal exceptions and cancellation back to the consumer.
+                // Note that if the consumer bail out early (call Dispose), 
+                // this will not be invoked here, instead we await 
+                // _producerWrapperTask in the dispose method.
+                var producerTask = Interlocked.Exchange(ref _producerWrapperTask, null);
+                if (producerTask != null)
+                    await producerTask;
                 return false;
             }
             return true;
         }
 
-        private async Task<bool> MoveProducerStateMachineAndWaitForValue()
+        private Task<bool> MoveProducerStateMachineAndWaitForValue()
         {
             _emitNextValue.SignalAndForget();
-            return await _valueAvailable;
+            return _valueAvailable.WaitForSignal();
         }
 
         private async Task Yield(T value)
@@ -244,7 +296,7 @@ var sequence = AsyncEnumerable.Create<int>(async producer =>
                 // Now, wait for the consumer to call MoveNext().
                 // This will guarantee that _current instance is valid until
                 // the consumer(s) are done.
-                await _emitNextValue;
+                await _emitNextValue.WaitForSignal();
 
                 if (_disposed)
                 {
@@ -295,18 +347,27 @@ var sequence = AsyncEnumerable.Create<int>(async producer =>
             Trace2("Release producer state machine");
 
             // Wake up the producer if it was stuck in Yield.
-            await _emitNextValue.Signal();
-            try
+            _emitNextValue.SignalAndForget();
+
+            var producerWrapperTask = Interlocked.Exchange(ref _producerWrapperTask, null);
+            if (producerWrapperTask != null)
             {
-                // Propagate exceptions
-                await _producerWrapperTask;
+                try
+                {
+                    // Propagate exceptions
+                    await producerWrapperTask.ConfigureAwait(false);
+                }
+                finally
+                {
+                    producerWrapperTask.Dispose();
+                }
             }
-            finally
+
+            if(_cancellationTokenSource != null)
             {
                 _cancellationTokenSource.Dispose();
-                _producerWrapperTask.Dispose();
-                _producerWrapperTask = null;
             }
+                
 
             Trace2("Disposed");
         }

@@ -65,8 +65,11 @@ namespace ALinq.Benchmark
 
         public static int Main(string[] arguments)
         {
-            Scenario01(100 * 100).Wait();
+            //Scenario01(100 * 100).Wait();
             //Scenario02(1000 * 1000);
+
+            //Scenario05(1000).Wait();
+            Scenario06(100).Wait();
 
             //Console.ReadKey();
             return 0;
@@ -77,8 +80,6 @@ namespace ALinq.Benchmark
             var random      = new Random();
             var data        = Enumerable.Range(0, size).Select(i => new SortEntry(random.Next(0, 100), random.Next(0, 100))).ToList();
 
-#pragma warning disable 1998
-
             using (new Profiler("ALINQ Scenario01"))
             {
                 var result =
@@ -86,7 +87,6 @@ namespace ALinq.Benchmark
                     data.ToAsync().OrderBy(i => Task.FromResult(i.Id1)).ThenBy(i => Task.FromResult(i.Id2)).ToList();
             }
 
-#pragma warning restore 1998
         }
 
         private static void Scenario02(int size)
@@ -115,5 +115,45 @@ namespace ALinq.Benchmark
                 Enumerable.Range(0, size).ToList();
             }
         }
+
+
+        private static async Task Scenario05(int size)
+        {
+            var a = AsyncEnumerable.Create<int>(async producer =>
+            {
+                for (int i = 0; i < size; i++)
+                {
+                    await producer.Yield(1);
+                }
+            });
+            var list = await a.ToList();
+        }
+
+
+        private static async Task Scenario06(int size)
+        {
+            var outer = AsyncEnumerable.Create<IAsyncEnumerable<int>>(async producer =>
+            {
+                for (int i = 0; i < size; i++)
+                {
+                    var inner = AsyncEnumerable.Create<int>(async innerProducer =>
+                    {
+                        for (int j = 0; j < size/10; j++)
+                        {
+                            await innerProducer.Yield(j);
+                        }
+                    });
+                    await producer.Yield(inner);
+                }
+            });
+
+            
+
+            var list = await outer
+                .SelectMany(inner => inner.Select(i => i * 100))
+                .ToList();
+        }
+
+
     }
 }

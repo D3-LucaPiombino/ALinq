@@ -8,9 +8,9 @@ namespace ALinq
     {
         private readonly Func<T,Task> notificationFunc;
      
-        public async Task Yield(T item)
+        public Task Yield(T item)
         {
-            await notificationFunc(item).ConfigureAwait(false);
+            return notificationFunc(item);
         }
 
         internal ConcurrentAsyncProducer(Func<T,Task> notificationFunc, CancellationToken cancellationToken)
