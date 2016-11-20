@@ -134,11 +134,11 @@ namespace System.Runtime.CompilerServices
         private AsyncTaskMethodBuilder _methodBuilder;
         /// <summary>The result for this builder, if it's completed before any awaits occur.</summary>
         /// <summary>true if <see cref="_result"/> contains the synchronous result for the async method; otherwise, false.</summary>
-        //private bool _haveResult;
+        private bool _haveResult;
         /// <summary>true if the builder should be used for setting/getting the result; otherwise, false.</summary>
-        //private bool _useBuilder;
-        private int _state;
-        private AsyncValueTaskMethodBuilderState _astate;
+        private bool _useBuilder;
+        
+        //private AsyncValueTaskMethodBuilderState _astate;
 
         private const int USE_BUIDER = 1;
         private const int HAS_RESULT = 2;
@@ -148,7 +148,7 @@ namespace System.Runtime.CompilerServices
         public static AsyncValueTaskMethodBuilder Create() => new AsyncValueTaskMethodBuilder()
         {
             _id = IdSeed.NewId(),
-            _astate = new AsyncValueTaskMethodBuilderState(),
+            //_astate = new AsyncValueTaskMethodBuilderState(),
             _methodBuilder = AsyncTaskMethodBuilder.Create()
         };
 
@@ -168,25 +168,13 @@ namespace System.Runtime.CompilerServices
         /// <param name="result">The result to use to complete the task.</param>
         public void SetResult()
         {
-            //Trace.TraceInformation($"AsyncValueTaskMethodBuilder[{_id}]: SetResult()");
-
-            if (_id == 7)
+            if (_useBuilder)
             {
-                //Trace.TraceInformation($"AsyncValueTaskMethodBuilder[{_id}]: SetResult() for id 7");
-            }
-
-            var state = Interlocked.CompareExchange(ref _astate._state, HAS_RESULT, 0);
-
-            if (/*_useBuilder || useBulder ||*/ state == USE_BUIDER)
-            {
-                //Trace.TraceInformation($"AsyncValueTaskMethodBuilder[{_id}]: SetResult() - state=USE_BUIDER");
                 _methodBuilder.SetResult();
             }
             else
             {
-                //Trace.TraceInformation($"AsyncValueTaskMethodBuilder[{_id}]: SetResult() - state=HAS_RESULT");
-                //_haveResult = true;
-                
+                _haveResult = true;
             }
         }
 
@@ -199,25 +187,13 @@ namespace System.Runtime.CompilerServices
         {
             get
             {
-                //Trace.TraceInformation($"AsyncValueTaskMethodBuilder[{_id}]: Task");
-
-                //if (_id == 7)
-                //{
-                //    Trace.TraceInformation($"AsyncValueTaskMethodBuilder[{_id}]: Task for id 7");
-                //}
-
-                var state = Interlocked.CompareExchange(ref _astate._state, USE_BUIDER, 0);
-                
-
-                if (/*_haveResult || hasResult ||*/ state == HAS_RESULT)
+                if (_haveResult )
                 {
-                    //Trace.TraceInformation($"AsyncValueTaskMethodBuilder[{_id}]: Task - state=HAS_RESULT");
                     return new ValueTask();
                 }
                 else
                 {
-                    //_useBuilder = true;
-                    //Trace.TraceInformation($"AsyncValueTaskMethodBuilder[{_id}]: Task - state=USE_BUIDER");
+                    _useBuilder = true;
                     return new ValueTask(_methodBuilder.Task);
                 }
             }
@@ -232,6 +208,7 @@ namespace System.Runtime.CompilerServices
             where TAwaiter : INotifyCompletion
             where TStateMachine : IAsyncStateMachine
         {
+            _useBuilder = true;
             _methodBuilder.AwaitOnCompleted(ref awaiter, ref stateMachine);
         }
 
@@ -245,6 +222,7 @@ namespace System.Runtime.CompilerServices
             where TAwaiter : ICriticalNotifyCompletion
             where TStateMachine : IAsyncStateMachine
         {
+            _useBuilder = true;
             _methodBuilder.AwaitUnsafeOnCompleted(ref awaiter, ref stateMachine);
         }
     }

@@ -110,7 +110,13 @@ namespace ALinq.Benchmark
             using (new Profiler("ALINQ Scenario03"))
             {
                 //var data = await AsyncEnumerable.Range(0, size).ToList();
-                var data = await AsyncGenerator(size).ToList();
+                var data = await AsyncGenerator(size)
+                    //.Select(async item => item * 2)
+                    //.Select(async item => item * 2)
+                    //.Select(async item => item * 2)
+                    //.Select(async item => item * 2)
+                    //.Select(async item => item * 2)
+                    .ToList();
             }
 
         }
@@ -131,8 +137,9 @@ namespace ALinq.Benchmark
                 for (int i = 0; i < size; i++)
                 {
                     //Trace.TraceInformation($"Yielding {i}");
+                    //Thread.Sleep(10);
                     await p.Yield(i);
-                    //if ((i % 1000) == 0) Console.WriteLine(i);
+                    if ((i % 1000) == 0) Console.WriteLine(i);
                     //Trace.TraceInformation($"Yielded {i}");
                 }
                 

@@ -133,8 +133,14 @@ namespace ALinq
             if (c != null)
             {
                 Debug.Assert(c == s_completionSentinel);
-                Task.Run(continuation);
-                //continuation();
+                if (RunContinuationsAsynchronously)
+                {
+                    Task.Run(continuation);
+                }
+                else
+                {
+                    continuation();
+                }
             }
         }
 
@@ -585,7 +591,7 @@ var sequence = AsyncEnumerable.Create<int>(async producer =>
             };
             _valueAvailable = new Signalable2<bool>($"AsyncEnumerator-{_id}({nameof(_valueAvailable)})")
             {
-                //RunContinuationsAsynchronously = true
+                //RunContinuationsAsynchronously = false
             };
 
             _producerWrapperTaskFactory = BuildProducerWrapperFactory(producerFunc);
