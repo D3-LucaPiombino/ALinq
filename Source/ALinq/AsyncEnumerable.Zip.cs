@@ -7,7 +7,7 @@ namespace ALinq
 {
     public static partial class AsyncEnumerable
     {
-        public static IAsyncEnumerable<TResult> Zip<TFirst,TSecond,TResult>(this IAsyncEnumerable<TFirst> enumerable1,IAsyncEnumerable<TSecond> enumerable2,Func<TFirst,TSecond,Task<TResult>> merger)
+        public static IAsyncEnumerable<TResult> Zip<TFirst,TSecond,TResult>(this IAsyncEnumerable<TFirst> enumerable1,IAsyncEnumerable<TSecond> enumerable2,Func<TFirst,TSecond,ValueTask<TResult>> merger)
         {
             if (enumerable1 == null) throw new ArgumentNullException("enumerable1");
             if (enumerable2 == null) throw new ArgumentNullException("enumerable2");

@@ -7,17 +7,17 @@ namespace ALinq
     public static partial class AsyncEnumerable
     {
         public static IAsyncEnumerable<TResult> GroupJoin<TOuter, TInner, TKey, TResult>(this IAsyncEnumerable<TOuter> outer,IAsyncEnumerable<TInner> inner,
-                                                                                    Func<TOuter, Task<TKey>> outerKeySelector,
-                                                                                    Func<TInner, Task<TKey>> innerKeySelector,
-                                                                                    Func<TOuter,IAsyncEnumerable<TInner>, Task<TResult>> resultSelector)
+                                                                                    Func<TOuter, ValueTask<TKey>> outerKeySelector,
+                                                                                    Func<TInner, ValueTask<TKey>> innerKeySelector,
+                                                                                    Func<TOuter,IAsyncEnumerable<TInner>, ValueTask<TResult>> resultSelector)
         {
             return GroupJoin(outer, inner, outerKeySelector, innerKeySelector, resultSelector, EqualityComparer<TKey>.Default);
         }
 
         public static IAsyncEnumerable<TResult> GroupJoin<TOuter, TInner, TKey, TResult>(this IAsyncEnumerable<TOuter> outer,IAsyncEnumerable<TInner> inner,
-            Func<TOuter, Task<TKey>> outerKeySelector,
-            Func<TInner, Task<TKey>> innerKeySelector,
-            Func<TOuter, IAsyncEnumerable<TInner>, Task<TResult>> resultSelector,
+            Func<TOuter, ValueTask<TKey>> outerKeySelector,
+            Func<TInner, ValueTask<TKey>> innerKeySelector,
+            Func<TOuter, IAsyncEnumerable<TInner>, ValueTask<TResult>> resultSelector,
             IEqualityComparer<TKey> comparer)
         {
             if (outer == null) throw new ArgumentNullException("outer");

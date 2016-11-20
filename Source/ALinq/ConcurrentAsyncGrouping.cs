@@ -12,7 +12,7 @@ namespace ALinq
             get { return key; }
         }
 
-        internal ConcurrentAsyncGrouping(TKey key,Func<ConcurrentAsyncProducer<TElement>, Task> producerFunc) 
+        internal ConcurrentAsyncGrouping(TKey key,Func<ConcurrentAsyncProducer<TElement>, ValueTask> producerFunc) 
             : base(producerFunc)
         {
             this.key = key;

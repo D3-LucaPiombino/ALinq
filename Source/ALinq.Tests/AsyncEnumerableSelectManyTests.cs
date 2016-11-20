@@ -6,9 +6,10 @@ namespace ALinq.Tests
 {
     internal static class Ext
     {
-        public static Task<T> AsTask<T>(this T item)
+        public static ValueTask<T> AsTask<T>(this T item)
         {
-            return Task.Run(() => item);
+            //return Task.Run(() => item);
+            return new ValueTask<T>(item);
         }
     }
     [TestClass]
@@ -33,12 +34,15 @@ namespace ALinq.Tests
         [TestMethod]
         public async Task SelectManyShouldWork()
         {
-            var sequence = await AsyncEnumerable.Range(0, 10)
-                .Select(i => new Entry(i * 10).AsTask())
+            var sequence = await AsyncEnumerable
+                .Range(0, 10)
+                .Select(async i => new Entry(i * 10))
                 .SelectMany((entry,index) => entry.Member.AsTask(), (entry, item) => item.AsTask())
                 .ToList();
-            
-            CollectionAssert.AreEqual(Enumerable.Range(0,100).ToList(),sequence.ToList());
+
+            var l = sequence.ToList();
+            CollectionAssert.AreEqual(Enumerable.Range(0, 100).ToList(), l);
+            //CollectionAssert.AreEqual(Enumerable.Range(0,100).ToList(),sequence.ToList());
         }
 
 

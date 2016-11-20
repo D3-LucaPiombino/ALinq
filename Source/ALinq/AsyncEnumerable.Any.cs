@@ -5,14 +5,14 @@ namespace ALinq
 {
     public static partial class AsyncEnumerable
     {
-        public static async Task<bool> Any<T>(this IAsyncEnumerable<T> enumerable)
+        public static async ValueTask<bool> Any<T>(this IAsyncEnumerable<T> enumerable)
         {
 #pragma warning disable 1998
             return await Any(enumerable, async item => true).ConfigureAwait(false);
 #pragma warning restore 1998
         }
 
-        public static async Task<bool> Any<T>(this IAsyncEnumerable<T> enumerable, Func<T, Task<bool>> predicate)
+        public static async ValueTask<bool> Any<T>(this IAsyncEnumerable<T> enumerable, Func<T, ValueTask<bool>> predicate)
         {
             if (enumerable == null) throw new ArgumentNullException("enumerable");
             if (predicate == null) throw new ArgumentNullException("predicate");
@@ -32,7 +32,7 @@ namespace ALinq
             return result;
         }
 
-        public static async Task<bool> Any<T>(this IAsyncEnumerable<T> enumerable, Func<T, bool> predicate)
+        public static async ValueTask<bool> Any<T>(this IAsyncEnumerable<T> enumerable, Func<T, bool> predicate)
         {
             if (enumerable == null) throw new ArgumentNullException("enumerable");
             if (predicate == null) throw new ArgumentNullException("predicate");

@@ -7,12 +7,12 @@ namespace ALinq
 {
     public static partial class AsyncEnumerable
     {
-        public static async Task<bool> SequenceEqual<T>(this IAsyncEnumerable<T> enumerable1, IAsyncEnumerable<T> enumerable2)
+        public static async ValueTask<bool> SequenceEqual<T>(this IAsyncEnumerable<T> enumerable1, IAsyncEnumerable<T> enumerable2)
         {
             return await SequenceEqual<T>(enumerable1, enumerable2, EqualityComparer<T>.Default).ConfigureAwait(false);
         }
 
-        public static async Task<bool> SequenceEqual<T>(this IAsyncEnumerable<T> enumerable1, IAsyncEnumerable<T> enumerable2, IEqualityComparer<T> comparer)
+        public static async ValueTask<bool> SequenceEqual<T>(this IAsyncEnumerable<T> enumerable1, IAsyncEnumerable<T> enumerable2, IEqualityComparer<T> comparer)
         {
             if (enumerable1 == null) throw new ArgumentNullException("enumerable1");
             if (enumerable2 == null) throw new ArgumentNullException("enumerable2");

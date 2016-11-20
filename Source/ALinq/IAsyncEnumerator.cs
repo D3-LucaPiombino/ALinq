@@ -6,7 +6,7 @@ namespace ALinq
     public interface IAsyncEnumerator
     {
         object      Current { get; }
-        Task<bool>  MoveNext();
+        ValueTask<bool>  MoveNext();
 
         // Task<bool> MoveNext(CancellationToken cancellationToken, Exception e);
     }
@@ -15,4 +15,7 @@ namespace ALinq
     {
         new T Current { get; }
     }
+
+
+    
 }

@@ -6,7 +6,7 @@ namespace ALinq
 {
     internal sealed class AsyncEnumerableConverter<T> : IAsyncEnumerable<T>
     {
-        private readonly Func<IEnumerator<Task<T>>> enumeratorFactory;
+        private readonly Func<IEnumerator<ValueTask<T>>> enumeratorFactory;
 
         IAsyncEnumerator<T> IAsyncEnumerable<T>.GetEnumerator()
         {
@@ -18,11 +18,9 @@ namespace ALinq
             return new AsyncEnumeratorConverter<T>(enumeratorFactory());
         }
 
-        internal AsyncEnumerableConverter(Func<IEnumerator<Task<T>>> enumeratorFactory)
+        internal AsyncEnumerableConverter(Func<IEnumerator<ValueTask<T>>> enumeratorFactory)
         {
-            if (enumeratorFactory == null) throw new ArgumentNullException("enumeratorFactory");
-
-            this.enumeratorFactory = enumeratorFactory;
+            this.enumeratorFactory = enumeratorFactory ?? throw new ArgumentNullException("enumeratorFactory");
         }
     }
 }

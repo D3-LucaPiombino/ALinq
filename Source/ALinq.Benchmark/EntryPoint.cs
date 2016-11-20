@@ -63,18 +63,23 @@ namespace ALinq.Benchmark
             }
         }
 
-        public static int Main(string[] arguments)
+        public static void Main(string[] arguments) => AsyncMain(arguments).GetAwaiter().GetResult();
+
+        public static async ValueTask AsyncMain(string[] arguments)
         {
+            Console.ReadKey();
             //Scenario01(100 * 100).Wait();
             //Scenario02(1000 * 1000);
 
+            //for (int i = 0; i < 10; i++)
+            //    Scenario04(10000);
+            //for (int i = 0; i < 10; i++)
+                await Scenario03(10000);
             //Scenario05(1000).Wait();
-            Scenario06(100).Wait();
+            //Scenario06(100).Wait();
 
-            //Console.ReadKey();
-            return 0;
+            Console.ReadKey();
         }
-
         private static async Task Scenario01(int size)
         {
             var random      = new Random();
@@ -84,7 +89,7 @@ namespace ALinq.Benchmark
             {
                 var result =
                     await
-                    data.ToAsync().OrderBy(i => Task.FromResult(i.Id1)).ThenBy(i => Task.FromResult(i.Id2)).ToList();
+                    data.ToAsync().OrderBy(async i => i.Id1).ThenBy(async i => i.Id2).ToList();
             }
 
         }
@@ -100,19 +105,45 @@ namespace ALinq.Benchmark
             }
         }
 
-        private static async Task Scenario03(int size)
+        private static async ValueTask Scenario03(int size)
         {
             using (new Profiler("ALINQ Scenario03"))
             {
-                var data = await AsyncEnumerable.Range(0, size).ToList();
+                //var data = await AsyncEnumerable.Range(0, size).ToList();
+                var data = await AsyncGenerator(size).ToList();
             }
+
+        }
+
+        public static IEnumerable<int> Generator(int size)
+        {
+            for (int i = 0; i < size; i++)
+            {
+                yield return i;
+                
+            }
+        }
+
+        public static IAsyncEnumerable<int> AsyncGenerator(int size)
+        {
+            return AsyncEnumerable.Create<int>(async p =>
+            {
+                for (int i = 0; i < size; i++)
+                {
+                    //Trace.TraceInformation($"Yielding {i}");
+                    await p.Yield(i);
+                    //if ((i % 1000) == 0) Console.WriteLine(i);
+                    //Trace.TraceInformation($"Yielded {i}");
+                }
+                
+            });
         }
 
         private static void Scenario04(int size)
         {
             using (new Profiler("LINQ Scenario04"))
             {
-                Enumerable.Range(0, size).ToList();
+                Generator(size).ToList();
             }
         }
 

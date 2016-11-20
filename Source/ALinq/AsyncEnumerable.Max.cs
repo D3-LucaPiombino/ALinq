@@ -5,107 +5,107 @@ namespace ALinq
 {
     public static partial class AsyncEnumerable 
     {
-        public static Task<int> Max(this IAsyncEnumerable<int> enumerable)
+        public static ValueTask<int> Max(this IAsyncEnumerable<int> enumerable)
         {
             return MaxCore(enumerable, (current, next) => next > current);
         }
 
-        public static async Task<int> Max(this IAsyncEnumerable<int?> enumerable)
+        public static async ValueTask<int> Max(this IAsyncEnumerable<int?> enumerable)
         {
             return (await MaxCore(enumerable, (current, next) => next.HasValue && next.Value > current).ConfigureAwait(false)).Value;
         }
 
-        public static Task<long> Max(this IAsyncEnumerable<long> enumerable)
+        public static ValueTask<long> Max(this IAsyncEnumerable<long> enumerable)
         {
             return MaxCore(enumerable, (current, next) => next > current);
         }
 
-        public static async Task<long> Max(this IAsyncEnumerable<long?> enumerable)
+        public static async ValueTask<long> Max(this IAsyncEnumerable<long?> enumerable)
         {
             return (await MaxCore(enumerable, (current, next) => next.HasValue && next.Value > current).ConfigureAwait(false)).Value;
         }
 
-        public static Task<float> Max(this IAsyncEnumerable<float> enumerable)
+        public static ValueTask<float> Max(this IAsyncEnumerable<float> enumerable)
         {
             return MaxCore(enumerable, (current, next) => next > current);
         }
 
-        public static async Task<float> Max(this IAsyncEnumerable<float?> enumerable)
+        public static async ValueTask<float> Max(this IAsyncEnumerable<float?> enumerable)
         {
             return (await MaxCore(enumerable, (current, next) => next.HasValue && next.Value > current).ConfigureAwait(false)).Value;
         }
 
-        public static Task<double> Max(this IAsyncEnumerable<double> enumerable)
+        public static ValueTask<double> Max(this IAsyncEnumerable<double> enumerable)
         {
             return MaxCore(enumerable, (current, next) => next > current);
         }
 
-        public static async Task<double> Max(this IAsyncEnumerable<double?> enumerable)
+        public static async ValueTask<double> Max(this IAsyncEnumerable<double?> enumerable)
         {
             return (await MaxCore(enumerable, (current, next) => next.HasValue && next.Value > current).ConfigureAwait(false)).Value;
         }
 
-        public static Task<decimal> Max(this IAsyncEnumerable<decimal> enumerable)
+        public static ValueTask<decimal> Max(this IAsyncEnumerable<decimal> enumerable)
         {
             return MaxCore(enumerable, (current, next) => next > current);
         }
 
-        public static async Task<decimal> Max(this IAsyncEnumerable<decimal?> enumerable)
+        public static async ValueTask<decimal> Max(this IAsyncEnumerable<decimal?> enumerable)
         {
             return (await MaxCore(enumerable, (current, next) => next.HasValue && next.Value > current).ConfigureAwait(false)).Value;
         }
 
-        public static Task<int> Max<T>(this IAsyncEnumerable<T> enumerable, Func<T, Task<int>> selector)
+        public static ValueTask<int> Max<T>(this IAsyncEnumerable<T> enumerable, Func<T, ValueTask<int>> selector)
         {
             return MaxCore(enumerable.Select(selector), (current, next) => next > current);
         }
 
-        public static async Task<int> Max<T>(this IAsyncEnumerable<T> enumerable, Func<T, Task<int?>> selector)
+        public static async ValueTask<int> Max<T>(this IAsyncEnumerable<T> enumerable, Func<T, ValueTask<int?>> selector)
         {
             return (await MaxCore(enumerable.Select(selector), (current, next) => next.HasValue && next.Value > current).ConfigureAwait(false)).Value;
         }
 
-        public static Task<long> Max<T>(this IAsyncEnumerable<T> enumerable, Func<T, Task<long>> selector)
+        public static ValueTask<long> Max<T>(this IAsyncEnumerable<T> enumerable, Func<T, ValueTask<long>> selector)
         {
             return MaxCore(enumerable.Select(selector), (current, next) => next > current);
         }
 
-        public static async Task<long> Max<T>(this IAsyncEnumerable<T> enumerable, Func<T, Task<long?>> selector)
+        public static async ValueTask<long> Max<T>(this IAsyncEnumerable<T> enumerable, Func<T, ValueTask<long?>> selector)
         {
             return (await MaxCore(enumerable.Select(selector), (current, next) => next.HasValue && next.Value > current).ConfigureAwait(false)).Value;
         }
 
-        public static Task<float> Max<T>(this IAsyncEnumerable<T> enumerable, Func<T, Task<float>> selector)
+        public static ValueTask<float> Max<T>(this IAsyncEnumerable<T> enumerable, Func<T, ValueTask<float>> selector)
         {
             return MaxCore(enumerable.Select(selector), (current, next) => next > current);
         }
 
-        public static async Task<float> Max<T>(this IAsyncEnumerable<T> enumerable, Func<T, Task<float?>> selector)
+        public static async ValueTask<float> Max<T>(this IAsyncEnumerable<T> enumerable, Func<T, ValueTask<float?>> selector)
         {
             return (await MaxCore(enumerable.Select(selector), (current, next) => next.HasValue && next.Value > current).ConfigureAwait(false)).Value;
         }
 
-        public static Task<double> Max<T>(this IAsyncEnumerable<T> enumerable, Func<T, Task<double>> selector)
+        public static ValueTask<double> Max<T>(this IAsyncEnumerable<T> enumerable, Func<T, ValueTask<double>> selector)
         {
             return MaxCore(enumerable.Select(selector), (current, next) => next > current);
         }
 
-        public static async Task<double> Max<T>(this IAsyncEnumerable<T> enumerable, Func<T, Task<double?>> selector)
+        public static async ValueTask<double> Max<T>(this IAsyncEnumerable<T> enumerable, Func<T, ValueTask<double?>> selector)
         {
             return (await MaxCore(enumerable.Select(selector), (current, next) => next.HasValue && next.Value > current).ConfigureAwait(false)).Value;
         }
 
-        public static Task<decimal> Max<T>(this IAsyncEnumerable<T> enumerable, Func<T, Task<decimal>> selector)
+        public static ValueTask<decimal> Max<T>(this IAsyncEnumerable<T> enumerable, Func<T, ValueTask<decimal>> selector)
         {
             return MaxCore(enumerable.Select(selector), (current, next) => next > current);
         }
 
-        public static async Task<decimal> Max<T>(this IAsyncEnumerable<T> enumerable, Func<T, Task<decimal?>> selector)
+        public static async ValueTask<decimal> Max<T>(this IAsyncEnumerable<T> enumerable, Func<T, ValueTask<decimal?>> selector)
         {
             return (await MaxCore(enumerable.Select(selector), (current, next) => next.HasValue && next.Value > current).ConfigureAwait(false)).Value;
         }
 
-        private static async Task<T> MaxCore<T>(this IAsyncEnumerable<T> enumerable, Func<T, T, bool> comparerFunc)
+        private static async ValueTask<T> MaxCore<T>(this IAsyncEnumerable<T> enumerable, Func<T, T, bool> comparerFunc)
         {
             if (enumerable == null) throw new ArgumentNullException("enumerable");
             if (comparerFunc == null) throw new ArgumentNullException("comparerFunc");
@@ -138,52 +138,52 @@ namespace ALinq
 
 
 
-        public static Task<int> Max<T>(this IAsyncEnumerable<T> enumerable, Func<T, int> selector)
+        public static ValueTask<int> Max<T>(this IAsyncEnumerable<T> enumerable, Func<T, int> selector)
         {
             return MaxCore(enumerable.Select(selector), (current, next) => next > current);
         }
 
-        public static async Task<int> Max<T>(this IAsyncEnumerable<T> enumerable, Func<T, int?> selector)
+        public static async ValueTask<int> Max<T>(this IAsyncEnumerable<T> enumerable, Func<T, int?> selector)
         {
             return (await MaxCore(enumerable.Select(selector), (current, next) => next.HasValue && next.Value > current).ConfigureAwait(false)).Value;
         }
 
-        public static Task<long> Max<T>(this IAsyncEnumerable<T> enumerable, Func<T, long> selector)
+        public static ValueTask<long> Max<T>(this IAsyncEnumerable<T> enumerable, Func<T, long> selector)
         {
             return MaxCore(enumerable.Select(selector), (current, next) => next > current);
         }
 
-        public static async Task<long> Max<T>(this IAsyncEnumerable<T> enumerable, Func<T, long?> selector)
+        public static async ValueTask<long> Max<T>(this IAsyncEnumerable<T> enumerable, Func<T, long?> selector)
         {
             return (await MaxCore(enumerable.Select(selector), (current, next) => next.HasValue && next.Value > current).ConfigureAwait(false)).Value;
         }
 
-        public static Task<float> Max<T>(this IAsyncEnumerable<T> enumerable, Func<T, float> selector)
+        public static ValueTask<float> Max<T>(this IAsyncEnumerable<T> enumerable, Func<T, float> selector)
         {
             return MaxCore(enumerable.Select(selector), (current, next) => next > current);
         }
 
-        public static async Task<float> Max<T>(this IAsyncEnumerable<T> enumerable, Func<T, float?> selector)
+        public static async ValueTask<float> Max<T>(this IAsyncEnumerable<T> enumerable, Func<T, float?> selector)
         {
             return (await MaxCore(enumerable.Select(selector), (current, next) => next.HasValue && next.Value > current).ConfigureAwait(false)).Value;
         }
 
-        public static Task<double> Max<T>(this IAsyncEnumerable<T> enumerable, Func<T, double> selector)
+        public static ValueTask<double> Max<T>(this IAsyncEnumerable<T> enumerable, Func<T, double> selector)
         {
             return MaxCore(enumerable.Select(selector), (current, next) => next > current);
         }
 
-        public static async Task<double> Max<T>(this IAsyncEnumerable<T> enumerable, Func<T, double?> selector)
+        public static async ValueTask<double> Max<T>(this IAsyncEnumerable<T> enumerable, Func<T, double?> selector)
         {
             return (await MaxCore(enumerable.Select(selector), (current, next) => next.HasValue && next.Value > current).ConfigureAwait(false)).Value;
         }
 
-        public static Task<decimal> Max<T>(this IAsyncEnumerable<T> enumerable, Func<T, decimal> selector)
+        public static ValueTask<decimal> Max<T>(this IAsyncEnumerable<T> enumerable, Func<T, decimal> selector)
         {
             return MaxCore(enumerable.Select(selector), (current, next) => next > current);
         }
 
-        public static async Task<decimal> Max<T>(this IAsyncEnumerable<T> enumerable, Func<T, decimal?> selector)
+        public static async ValueTask<decimal> Max<T>(this IAsyncEnumerable<T> enumerable, Func<T, decimal?> selector)
         {
             return (await MaxCore(enumerable.Select(selector), (current, next) => next.HasValue && next.Value > current).ConfigureAwait(false)).Value;
         }

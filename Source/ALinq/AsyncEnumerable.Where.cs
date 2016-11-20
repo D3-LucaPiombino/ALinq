@@ -6,7 +6,7 @@ namespace ALinq
 {
     public static partial class AsyncEnumerable
     {
-        public static IAsyncEnumerable<T> Where<T>(this IAsyncEnumerable<T> enumerable,Func<T,Task<bool>> predicate)
+        public static IAsyncEnumerable<T> Where<T>(this IAsyncEnumerable<T> enumerable,Func<T,ValueTask<bool>> predicate)
         {
             return Where(enumerable, (item, index) => predicate(item));
         }
@@ -16,7 +16,7 @@ namespace ALinq
             return Where(enumerable, (item, index) => predicate(item));
         }
 
-        public static IAsyncEnumerable<T> Where<T>(this IAsyncEnumerable<T> enumerable,Func<T,int,Task<bool>> predicate)
+        public static IAsyncEnumerable<T> Where<T>(this IAsyncEnumerable<T> enumerable,Func<T,int,ValueTask<bool>> predicate)
         {
             if (enumerable == null) throw new ArgumentNullException("enumerable");
             if (predicate == null) throw new ArgumentNullException("predicate");

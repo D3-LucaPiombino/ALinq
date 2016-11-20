@@ -7,52 +7,52 @@ namespace ALinq
 {
     public static partial class AsyncEnumerable
     {
-        public static async Task<IDictionary<TKey, TSource>> ToDictionary<TSource, TKey>(
+        public static async ValueTask<IDictionary<TKey, TSource>> ToDictionary<TSource, TKey>(
             this IAsyncEnumerable<TSource> source,
-            Func<TSource, Task<TKey>> keySelector,
+            Func<TSource, ValueTask<TKey>> keySelector,
             IEqualityComparer<TKey> comparer = null
         )
         {
             return await ToDictionary(
                 source, 
                 keySelector,
-                e => Task.FromResult(e), 
+                s => new ValueTask<TSource>(s), 
                 comparer
             )
             .ConfigureAwait(false);
         }
 
-        public static async Task<IDictionary<TKey, TElement>> ToDictionary<TSource, TKey, TElement>(
+        public static async ValueTask<IDictionary<TKey, TElement>> ToDictionary<TSource, TKey, TElement>(
             this IAsyncEnumerable<TSource> source,
             Func<TSource, TKey> keySelector,
-            Func<TSource, Task<TElement>> elementSelector,
+            Func<TSource, ValueTask<TElement>> elementSelector,
             IEqualityComparer<TKey> comparer = null)
         {
             return await ToDictionary(
                 source,
-                s => Task.FromResult(keySelector(s)),
+                s => new ValueTask<TKey>(keySelector(s)),
                 elementSelector,
                 comparer
             )
             .ConfigureAwait(false);
         }
 
-        public static async Task<IDictionary<TKey, TElement>> ToDictionary<TSource, TKey, TElement>(
+        public static async ValueTask<IDictionary<TKey, TElement>> ToDictionary<TSource, TKey, TElement>(
             this IAsyncEnumerable<TSource> source,
-            Func<TSource, Task<TKey>> keySelector,
+            Func<TSource, ValueTask<TKey>> keySelector,
             Func<TSource, TElement> elementSelector,
             IEqualityComparer<TKey> comparer = null)
         {
             return await ToDictionary(
                 source,
                 keySelector,
-                s => Task.FromResult(elementSelector(s)),
+                s => new ValueTask<TElement>(elementSelector(s)),
                 comparer
             )
             .ConfigureAwait(false);
         }
 
-        public static async Task<IDictionary<TKey, TElement>> ToDictionary<TSource, TKey, TElement>(
+        public static async ValueTask<IDictionary<TKey, TElement>> ToDictionary<TSource, TKey, TElement>(
             this IAsyncEnumerable<TSource> source,
             Func<TSource, TKey> keySelector,
             Func<TSource, TElement> elementSelector,
@@ -60,8 +60,8 @@ namespace ALinq
         {
             return await ToDictionary(
                 source, 
-                s => Task.FromResult(keySelector(s)), 
-                s => Task.FromResult(elementSelector(s)),
+                s => new ValueTask<TKey>(keySelector(s)), 
+                s => new ValueTask<TElement>(elementSelector(s)),
                 comparer
             )
             .ConfigureAwait(false);
@@ -69,10 +69,10 @@ namespace ALinq
 
         // ---
 
-        public static async Task<IDictionary<TKey, TElement>> ToDictionary<TSource, TKey, TElement>(
+        public static async ValueTask<IDictionary<TKey, TElement>> ToDictionary<TSource, TKey, TElement>(
             this IAsyncEnumerable<TSource> source,
-            Func<TSource, Task<TKey>> keySelector,
-	        Func<TSource, Task<TElement>> elementSelector,
+            Func<TSource, ValueTask<TKey>> keySelector,
+	        Func<TSource, ValueTask<TElement>> elementSelector,
 	        IEqualityComparer<TKey> comparer = null)
         {
             if (source == null) throw new ArgumentNullException("source");

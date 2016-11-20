@@ -12,7 +12,7 @@ namespace ALinq
             disposable?.Dispose();
         }
 
-        public static Task DisposeAsync(this IAsyncEnumerator enumerator)
+        public static ValueTask DisposeAsync(this IAsyncEnumerator enumerator)
         {
             var asyncDisposable = enumerator as IAsyncDisposable;
             if (asyncDisposable != null)
@@ -20,7 +20,7 @@ namespace ALinq
                 return asyncDisposable.DisposeAsync();
             }
             enumerator.Dispose();
-            return Task.FromResult(true);
+            return new ValueTask();
         }
 
         /// <summary>
@@ -34,7 +34,7 @@ namespace ALinq
         /// <param name="otherEnumerator"></param>
         /// <returns></returns>
         /// <throw ><see cref="AggregateException"/></throw>
-        public static async Task DisposeAsync(this IAsyncEnumerator enumerator, Exception outerException)
+        public static async ValueTask DisposeAsync(this IAsyncEnumerator enumerator, Exception outerException)
         {
             try
             {
@@ -62,7 +62,7 @@ namespace ALinq
         {
             try
             {
-                await Task.WhenAll(enumerator.DisposeAsync(), otherEnumerator.DisposeAsync());
+                await Task.WhenAll(enumerator.DisposeAsync().AsTask(), otherEnumerator.DisposeAsync().AsTask());
             }
             catch (Exception ex)
             {

@@ -7,7 +7,7 @@ namespace ALinq
 {
     public static partial class AsyncEnumerable
     {
-        public static async Task<T[]> ToArray<T>(this IAsyncEnumerable<T> enumerable )
+        public static async ValueTask<T[]> ToArray<T>(this IAsyncEnumerable<T> enumerable )
         {
             var list = await ToList(enumerable).ConfigureAwait(false);
             return list.ToArray();

@@ -12,7 +12,7 @@ namespace ALinq
         internal abstract AsyncSortContext<TValue>  CreateContext(AsyncSortContext<TValue> current);
         protected abstract IAsyncEnumerable<TValue> Sort(IAsyncEnumerable<TValue> source);
 
-        IOrderedAsyncEnumerable<TValue> IOrderedAsyncEnumerable<TValue>.CreateOrderedEnumerable<TKey>(Func<TValue, Task<TKey>> keySelector, IComparer<TKey> comparer, bool descending)
+        IOrderedAsyncEnumerable<TValue> IOrderedAsyncEnumerable<TValue>.CreateOrderedEnumerable<TKey>(Func<TValue, ValueTask<TKey>> keySelector, IComparer<TKey> comparer, bool descending)
         {
             return new OrderedAsyncSequence<TKey,TValue>(this, source, keySelector, comparer,descending);
         }
@@ -29,9 +29,7 @@ namespace ALinq
 
         protected OrderedAsyncEnumerable (IAsyncEnumerable<TValue> source)
         {
-            if (source == null) throw new ArgumentNullException("source");
-
-            this.source = source;
+            this.source = source ?? throw new ArgumentNullException("source");
         }
     }
 }

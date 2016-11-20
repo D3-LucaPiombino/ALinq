@@ -20,20 +20,21 @@ namespace ALinq
             });
         }
 
-        public static IAsyncEnumerable<T> ToAsync<T>(this IEnumerable<Task<T>> enumerable)
+        public static IAsyncEnumerable<T> ToAsync<T>(this IEnumerable<ValueTask<T>> enumerable)
         {
             if (enumerable == null) throw new ArgumentNullException("enumerable");
 
             return ToAsync(enumerable.GetEnumerator);
         }
 
-        public static IAsyncEnumerable<T> ToAsync<T>(Func<IEnumerator<Task<T>>> enumeratorFactory)
+        public static IAsyncEnumerable<T> ToAsync<T>(Func<IEnumerator<ValueTask<T>>> enumeratorFactory)
         {
             if (enumeratorFactory == null) throw new ArgumentNullException("enumeratorFactory");
 
             return new AsyncEnumerableConverter<T>(enumeratorFactory);
         }
 
+        
         public static IAsyncEnumerable<T> ToAsync<T>(this IObservable<T> observable)
         {
             if (observable == null) throw new ArgumentNullException("observable");
@@ -62,7 +63,7 @@ namespace ALinq
                 HasValue = true;
             }
 
-            public static Task<Maybe<T>> DefaultTask = Task.FromResult(default(Maybe<T>));
+            //public static Task<Maybe<T>> DefaultTask = Task.FromResult(default(Maybe<T>));
         }
 
         /// <summary>
@@ -72,7 +73,7 @@ namespace ALinq
         /// <typeparam name="T"></typeparam>
         /// <param name="source"></param>
         /// <returns></returns>
-        public static IEnumerable<Task<Maybe<T>>> ToEnumerable<T>(this IAsyncEnumerable<T> source)
+        public static IEnumerable<ValueTask<Maybe<T>>> ToEnumerable<T>(this IAsyncEnumerable<T> source)
         {
             if (source == null) throw new ArgumentNullException("source");
 
@@ -82,10 +83,9 @@ namespace ALinq
             {
                 while (true)
                 {
-                    yield return enumerator
-                        .MoveNext()
-                        .ContinueWith(ConvertNext<T>, enumerator)
-                        .Unwrap();
+                    yield return ConvertNext<T>(enumerator.MoveNext(), enumerator);
+                        //.ContinueWith(ConvertNext<T>, enumerator)
+                        //.Unwrap();
 
                     //yield return enumerator
                     //    .MoveNext()
@@ -101,7 +101,7 @@ namespace ALinq
             }
         }
 
-        private static async Task<Maybe<T>> ConvertNext<T>(Task<bool> task, object state)
+        private static async ValueTask<Maybe<T>> ConvertNext<T>(ValueTask<bool> task, object state)
         {
             ExceptionDispatchInfo edi = null;
             var _enumerator = (IAsyncEnumerator<T>)state;
@@ -124,30 +124,30 @@ namespace ALinq
             return default(Maybe<T>);
         }
 
-        private static Task<Maybe<T>> SafeDispose<T>(Task<Maybe<T>> task, object state)
-        {
-            var _enumerator = (IAsyncEnumerator<T>)state;
-            if (task.Result.HasValue)
-                return task;
+        //private static async ValueTask<Maybe<T>> SafeDispose<T>(Task<Maybe<T>> task, object state)
+        //{
+        //    var _enumerator = (IAsyncEnumerator<T>)state;
+        //    if (task.Result.HasValue)
+        //        return await task;
+            
+        //    return _enumerator
+        //        .DisposeAsync(task.Exception)
+        //        .ContinueWith(ReturnResult<T>, task);
+        //}
 
-            return _enumerator
-                .DisposeAsync(task.Exception)
-                .ContinueWith(ReturnResult<T>, task);
-        }
-
-        private static Maybe<T> ReturnResult<T>(Task disposeTask, object resultTask)
-        {
-            disposeTask.Wait();
-            return ((Task<Maybe<T>>)resultTask).Result;
-        }
-        private static Maybe<T> ConvertNext2<T>(Task<bool> task, object state)
-        {
-            var _enumerator = (IAsyncEnumerator<T>)state;
-            var hasNext = task.Result;
-            if (hasNext)
-                return new Maybe<T>(_enumerator.Current);
-            return default(Maybe<T>);
-        }
+        //private static Maybe<T> ReturnResult<T>(Task disposeTask, object resultTask)
+        //{
+        //    disposeTask.Wait();
+        //    return ((Task<Maybe<T>>)resultTask).Result;
+        //}
+        //private static Maybe<T> ConvertNext2<T>(Task<bool> task, object state)
+        //{
+        //    var _enumerator = (IAsyncEnumerator<T>)state;
+        //    var hasNext = task.Result;
+        //    if (hasNext)
+        //        return new Maybe<T>(_enumerator.Current);
+        //    return default(Maybe<T>);
+        //}
 
         
     }

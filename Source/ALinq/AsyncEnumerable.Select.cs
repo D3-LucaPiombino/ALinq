@@ -6,7 +6,7 @@ namespace ALinq
 {
     public static partial class AsyncEnumerable
     {
-        public static IAsyncEnumerable<TOut> Select<TIn, TOut>(this IAsyncEnumerable<TIn> enumerable, Func<TIn,Task<TOut>> selector)
+        public static IAsyncEnumerable<TOut> Select<TIn, TOut>(this IAsyncEnumerable<TIn> enumerable, Func<TIn, ValueTask<TOut>> selector)
         {
             return Select(enumerable, (item, index) => selector(item));
         }
@@ -16,7 +16,7 @@ namespace ALinq
             return Select(enumerable, (item, index) => selector(item));
         }
 
-        public static IAsyncEnumerable<TOut> Select<TIn, TOut>(this IAsyncEnumerable<TIn> enumerable, Func<TIn,long,Task<TOut>> selector)
+        public static IAsyncEnumerable<TOut> Select<TIn, TOut>(this IAsyncEnumerable<TIn> enumerable, Func<TIn,long,ValueTask<TOut>> selector)
         {
             if (enumerable == null) throw new ArgumentNullException("enumerable");
             if (selector == null) throw new ArgumentNullException("selector");

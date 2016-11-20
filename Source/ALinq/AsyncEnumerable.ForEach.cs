@@ -17,30 +17,30 @@ namespace ALinq
 
             public object Current => _untypedEnumerator.Current;
 
-            public Task<bool> MoveNext() => _untypedEnumerator.MoveNext();
+            public ValueTask<bool> MoveNext() => _untypedEnumerator.MoveNext();
         }
 
-        public static Task ForEach(this IAsyncEnumerable enumerable, Func<object, AsyncLoopContext<object>, Task> enumerationAction)
+        public static ValueTask ForEach(this IAsyncEnumerable enumerable, Func<object, AsyncLoopContext<object>, ValueTask> enumerationAction)
         {
             return ForEach(enumerable, loopState => enumerationAction(loopState.Item, loopState));
         }
 
-        public static Task ForEach(this IAsyncEnumerable enumerable, Func<object, long, AsyncLoopContext<object>, Task> enumerationAction)
+        public static ValueTask ForEach(this IAsyncEnumerable enumerable, Func<object, long, AsyncLoopContext<object>, ValueTask> enumerationAction)
         {
             return ForEach(enumerable, loopState => enumerationAction(loopState.Item, loopState.Index, loopState));
         }
 
-        public static Task ForEach(this IAsyncEnumerable enumerable, Func<object, long, Task> enumerationAction)
+        public static ValueTask ForEach(this IAsyncEnumerable enumerable, Func<object, long, ValueTask> enumerationAction)
         {
             return ForEach(enumerable, loopState => enumerationAction(loopState.Item, loopState.Index));
         }
 
-        public static Task ForEach(this IAsyncEnumerable enumerable, Func<object, Task> enumerationAction)
+        public static ValueTask ForEach(this IAsyncEnumerable enumerable, Func<object, ValueTask> enumerationAction)
         {
             return ForEach(enumerable, loopState => enumerationAction(loopState.Item));
         }
 
-        public static Task ForEach(this IAsyncEnumerable enumerable, Func<AsyncLoopContext<object>, Task> enumerationAction)
+        public static ValueTask ForEach(this IAsyncEnumerable enumerable, Func<AsyncLoopContext<object>, ValueTask> enumerationAction)
         {
             if (enumerable == null) throw new ArgumentNullException("enumerable");
             if (enumerationAction == null) throw new ArgumentNullException("enumerationAction");
@@ -51,7 +51,7 @@ namespace ALinq
             return ForEachCore(adapter, enumerationAction);
         }
 
-        public static Task ForEach(this IAsyncEnumerable enumerable, Action<AsyncLoopContext<object>> enumerationAction)
+        public static ValueTask ForEach(this IAsyncEnumerable enumerable, Action<AsyncLoopContext<object>> enumerationAction)
         {
             if (enumerable == null) throw new ArgumentNullException("enumerable");
             if (enumerationAction == null) throw new ArgumentNullException("enumerationAction");
@@ -63,46 +63,46 @@ namespace ALinq
         }
 
 
-        public static Task ForEach<T>(this IAsyncEnumerable<T> enumerable, Func<T, AsyncLoopContext<T>, Task> enumerationAction)
+        public static ValueTask ForEach<T>(this IAsyncEnumerable<T> enumerable, Func<T, AsyncLoopContext<T>, ValueTask> enumerationAction)
         {
             return ForEach(enumerable, loopState => enumerationAction(loopState.Item, loopState));
         }
 
-        public static Task ForEach<T>(this IAsyncEnumerable<T> enumerable, Func<T, long, AsyncLoopContext<T>, Task> enumerationAction)
+        public static ValueTask ForEach<T>(this IAsyncEnumerable<T> enumerable, Func<T, long, AsyncLoopContext<T>, ValueTask> enumerationAction)
         {
             return ForEach(enumerable, loopState => enumerationAction(loopState.Item, loopState.Index, loopState));
         }
 
-        public static Task ForEach<T>(this IAsyncEnumerable<T> enumerable, Func<T, long, Task> enumerationAction)
+        public static ValueTask ForEach<T>(this IAsyncEnumerable<T> enumerable, Func<T, long, ValueTask> enumerationAction)
         {
             return ForEach(enumerable, loopState => enumerationAction(loopState.Item, loopState.Index));
         }
 
-        public static Task ForEach<T>(this IAsyncEnumerable<T> enumerable, Action<T, long> enumerationAction)
+        public static ValueTask ForEach<T>(this IAsyncEnumerable<T> enumerable, Action<T, long> enumerationAction)
         {
             return ForEach(enumerable, loopState => enumerationAction(loopState.Item, loopState.Index));
         }
 
-        public static Task ForEach<T>(this IAsyncEnumerable<T> enumerable, Func<T, Task> enumerationAction)
+        public static ValueTask ForEach<T>(this IAsyncEnumerable<T> enumerable, Func<T, ValueTask> enumerationAction)
         {
             return ForEach(enumerable, loopState => enumerationAction(loopState.Item));
         }
 
-        public static Task ForEach<T>(this IAsyncEnumerable<T> enumerable, Func<AsyncLoopContext<T>, Task> enumerationAction)
+        public static ValueTask ForEach<T>(this IAsyncEnumerable<T> enumerable, Func<AsyncLoopContext<T>, ValueTask> enumerationAction)
         {
             if (enumerable == null) throw new ArgumentNullException("enumerable");
             if (enumerationAction == null) throw new ArgumentNullException("enumerationAction");
             return ForEachCore(enumerable.GetEnumerator(), enumerationAction);
         }
 
-        public static Task ForEach<T>(this IAsyncEnumerable<T> enumerable, Action<AsyncLoopContext<T>> enumerationAction)
+        public static ValueTask ForEach<T>(this IAsyncEnumerable<T> enumerable, Action<AsyncLoopContext<T>> enumerationAction)
         {
             if (enumerable == null) throw new ArgumentNullException("enumerable");
             if (enumerationAction == null) throw new ArgumentNullException("enumerationAction");
             return ForEachCore(enumerable.GetEnumerator(), enumerationAction);
         }
 
-        private static async Task ForEachCore<T>(
+        private static async ValueTask ForEachCore<T>(
             this IAsyncEnumerator<T> enumerator,
             Action<AsyncLoopContext<T>> enumerationAction
         )
@@ -146,9 +146,9 @@ namespace ALinq
             edi?.Throw();
         }
 
-        private static async Task ForEachCore<T>(
+        private static async ValueTask ForEachCore<T>(
             this IAsyncEnumerator<T> enumerator,
-            Func<AsyncLoopContext<T>, Task> enumerationAction
+            Func<AsyncLoopContext<T>, ValueTask> enumerationAction
         )
         {
             if (enumerationAction == null) throw new ArgumentNullException("enumerationAction");
@@ -190,7 +190,10 @@ namespace ALinq
             edi?.Throw();
         }
 
-        public static Task ForEach<T>(this IAsyncEnumerable<T> enumerable, ConcurrentAsyncProducer<T> producer)
+
+
+
+        public static ValueTask ForEach<T>(this IAsyncEnumerable<T> enumerable, ConcurrentAsyncProducer<T> producer)
         {
             return ForEach(enumerable, loopState => producer.Yield(loopState.Item));
         }

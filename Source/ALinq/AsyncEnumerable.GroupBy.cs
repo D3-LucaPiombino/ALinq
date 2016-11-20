@@ -8,20 +8,20 @@ namespace ALinq
     public static partial class AsyncEnumerable
     {
         public static IAsyncEnumerable<IAsyncGrouping<TKey, TElement>> GroupBy<TSource, TKey, TElement>(this IAsyncEnumerable<TSource> source,
-                                                                                                        Func<TSource, Task<TKey>> keySelector,
-                                                                                                        Func<TSource, Task<TElement>> elementSelector)
+                                                                                                        Func<TSource, ValueTask<TKey>> keySelector,
+                                                                                                        Func<TSource, ValueTask<TElement>> elementSelector)
         {
             return GroupBy(source, keySelector, elementSelector, EqualityComparer<TKey>.Default);
         }
 
         public static IAsyncEnumerable<IAsyncGrouping<TKey,TSource>> GroupBy<TSource, TKey>(this IAsyncEnumerable<TSource> source,
-                                                                                            Func<TSource, Task<TKey>> keySelector)
+                                                                                            Func<TSource, ValueTask<TKey>> keySelector)
         {
             return GroupBy(source, keySelector, EqualityComparer<TKey>.Default);
         }
 
         public static IAsyncEnumerable<IAsyncGrouping<TKey,TSource>> GroupBy<TSource, TKey>(this IAsyncEnumerable<TSource> source,
-                                                                                            Func<TSource, Task<TKey>> keySelector,
+                                                                                            Func<TSource, ValueTask<TKey>> keySelector,
                                                                                             IEqualityComparer<TKey> comparer)
         {
 #pragma warning disable 1998
@@ -30,8 +30,8 @@ namespace ALinq
         }
 
         public static IAsyncEnumerable<IAsyncGrouping<TKey, TElement>> GroupBy<TSource, TKey, TElement>(this IAsyncEnumerable<TSource> source,
-	            Func<TSource, Task<TKey>> keySelector,
-	            Func<TSource, Task<TElement>> elementSelector,
+	            Func<TSource, ValueTask<TKey>> keySelector,
+	            Func<TSource, ValueTask<TElement>> elementSelector,
 	            IEqualityComparer<TKey> comparer)
         {
             if (source == null) throw new ArgumentNullException("source");
@@ -76,23 +76,23 @@ namespace ALinq
         }
 
         public static IAsyncEnumerable<TResult> GroupBy<TSource, TKey, TElement,TResult>(this IAsyncEnumerable<TSource> source,
-                                                                                         Func<TSource, Task<TKey>> keySelector,
-                                                                                         Func<TSource, Task<TElement>> elementSelector,
-                                                                                         Func<TKey,IAsyncEnumerable<TElement>,Task<TResult>> resultSelector)
+                                                                                         Func<TSource, ValueTask<TKey>> keySelector,
+                                                                                         Func<TSource, ValueTask<TElement>> elementSelector,
+                                                                                         Func<TKey,IAsyncEnumerable<TElement>,ValueTask<TResult>> resultSelector)
         {
             return GroupBy(source, keySelector, elementSelector, resultSelector, EqualityComparer<TKey>.Default);
         }
 
         public static IAsyncEnumerable<TResult> GroupBy<TSource, TKey,TResult>(this IAsyncEnumerable<TSource> source,
-                                                                               Func<TSource, Task<TKey>> keySelector,
-                                                                               Func<TKey,IAsyncEnumerable<TSource>,Task<TResult>> resultSelector)
+                                                                               Func<TSource, ValueTask<TKey>> keySelector,
+                                                                               Func<TKey,IAsyncEnumerable<TSource>,ValueTask<TResult>> resultSelector)
         {
             return GroupBy(source, keySelector, resultSelector, EqualityComparer<TKey>.Default);
         }
 
         public static IAsyncEnumerable<TResult> GroupBy<TSource, TKey,TResult>(this IAsyncEnumerable<TSource> source,
-                                                                                         Func<TSource, Task<TKey>> keySelector,
-                                                                                         Func<TKey,IAsyncEnumerable<TSource>,Task<TResult>> resultSelector,
+                                                                                         Func<TSource, ValueTask<TKey>> keySelector,
+                                                                                         Func<TKey,IAsyncEnumerable<TSource>,ValueTask<TResult>> resultSelector,
                                                                                          IEqualityComparer<TKey> comparer)
         {
 #pragma warning disable 1998
@@ -101,9 +101,9 @@ namespace ALinq
         }
 
         public static IAsyncEnumerable<TResult> GroupBy<TSource, TKey, TElement,TResult>(this IAsyncEnumerable<TSource> source,
-            Func<TSource, Task<TKey>> keySelector,
-            Func<TSource, Task<TElement>> elementSelector,
-            Func<TKey,IAsyncEnumerable<TElement>,Task<TResult>> resultSelector,
+            Func<TSource, ValueTask<TKey>> keySelector,
+            Func<TSource, ValueTask<TElement>> elementSelector,
+            Func<TKey,IAsyncEnumerable<TElement>,ValueTask<TResult>> resultSelector,
             IEqualityComparer<TKey> comparer)
         {
             if (source == null) throw new ArgumentNullException("source");

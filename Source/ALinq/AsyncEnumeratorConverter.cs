@@ -6,24 +6,21 @@ namespace ALinq
 {
     internal sealed class AsyncEnumeratorConverter<T> : IAsyncEnumerator<T>
     {
-        private readonly IEnumerator<Task<T>>   enumerator;
+        private readonly IEnumerator<ValueTask<T>>   enumerator;
         private T                               current;
 
-        object IAsyncEnumerator.Current
-        {
-            get { return current; }
-        }
+        object IAsyncEnumerator.Current => current;
 
-        T IAsyncEnumerator<T>.Current
-        {
-            get { return current; }
-        }
+        T IAsyncEnumerator<T>.Current => current;
 
-        async Task<bool> IAsyncEnumerator.MoveNext()
+        public async ValueTask<bool> MoveNext()
         {
             if (enumerator.MoveNext())
             {
-                using (var task = enumerator.Current)
+                //using (
+                //    var task = enumerator.Current
+                //)
+                var task = enumerator.Current;
                 {
                     if (task != null)
                     {
@@ -36,11 +33,11 @@ namespace ALinq
             return false;
         }
 
-        internal AsyncEnumeratorConverter(IEnumerator<Task<T>> enumerator)
+        internal AsyncEnumeratorConverter(IEnumerator<ValueTask<T>> enumerator)
         {
-            if (enumerator == null) throw new ArgumentNullException("enumerator");
-
-            this.enumerator = enumerator;
+            this.enumerator = enumerator ?? throw new ArgumentNullException("enumerator");
         }
     }
+
+    
 }

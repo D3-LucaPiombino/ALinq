@@ -29,7 +29,7 @@ namespace ALinq
 
         void IObserver<T>.OnNext(T value)
         {
-            producer.Yield(value).Wait();
+            producer.Yield(value).GetAwaiter().GetResult();
         }
 
         internal ConversionObserver(ConcurrentAsyncProducer<T> producer)

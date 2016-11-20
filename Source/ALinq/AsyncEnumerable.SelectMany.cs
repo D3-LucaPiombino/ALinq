@@ -7,7 +7,7 @@ namespace ALinq
     {
         public static IAsyncEnumerable<TCollection> SelectMany<TSource, TCollection>(
             this IAsyncEnumerable<TSource> enumerable, 
-            Func<TSource, Task<IAsyncEnumerable<TCollection>>> collectionSelector
+            Func<TSource, ValueTask<IAsyncEnumerable<TCollection>>> collectionSelector
         )
         {
             return SelectMany(enumerable, (source, index) => collectionSelector(source), (source, item) => item);
@@ -24,7 +24,7 @@ namespace ALinq
 
         public static IAsyncEnumerable<TCollection> SelectMany<TSource, TCollection>(
             this IAsyncEnumerable<TSource> enumerable, 
-            Func<TSource, int, Task<IAsyncEnumerable<TCollection>>> collectionSelector)
+            Func<TSource, int, ValueTask<IAsyncEnumerable<TCollection>>> collectionSelector)
         {
             return SelectMany(enumerable, collectionSelector, (source, item) => item);
         }
@@ -39,7 +39,7 @@ namespace ALinq
         public static IAsyncEnumerable<TResult> SelectMany<TSource, TCollection, TResult>(
             this IAsyncEnumerable<TSource> enumerable,
             Func<TSource, IAsyncEnumerable<TCollection>> collectionSelector,
-            Func<TSource, TCollection, Task<TResult>> resultSelector)
+            Func<TSource, TCollection, ValueTask<TResult>> resultSelector)
         {
             return SelectMany(enumerable, (source, index) => collectionSelector(source), resultSelector);
         }
@@ -54,15 +54,15 @@ namespace ALinq
 
         public static IAsyncEnumerable<TResult> SelectMany<TSource, TCollection, TResult>(
             this IAsyncEnumerable<TSource> enumerable, 
-            Func<TSource, Task<IAsyncEnumerable<TCollection>>> collectionSelector, 
-            Func<TSource, TCollection, Task<TResult>> resultSelector)
+            Func<TSource, ValueTask<IAsyncEnumerable<TCollection>>> collectionSelector, 
+            Func<TSource, TCollection, ValueTask<TResult>> resultSelector)
         {
             return SelectMany(enumerable, (source, index) => collectionSelector(source), resultSelector);
         }
 
         public static IAsyncEnumerable<TResult> SelectMany<TSource, TCollection, TResult>(
             this IAsyncEnumerable<TSource> enumerable,
-            Func<TSource, Task<IAsyncEnumerable<TCollection>>> collectionSelector,
+            Func<TSource, ValueTask<IAsyncEnumerable<TCollection>>> collectionSelector,
             Func<TSource, TCollection, TResult> resultSelector)
         {
             return SelectMany(enumerable, (source, index) => collectionSelector(source), resultSelector);
@@ -72,8 +72,8 @@ namespace ALinq
 
         public static IAsyncEnumerable<TResult> SelectMany<TSource, TCollection, TResult>(
             this IAsyncEnumerable<TSource> enumerable, 
-            Func<TSource, int, Task<IAsyncEnumerable<TCollection>>> collectionSelector, 
-            Func<TSource, TCollection, Task<TResult>> resultSelector)
+            Func<TSource, int, ValueTask<IAsyncEnumerable<TCollection>>> collectionSelector, 
+            Func<TSource, TCollection, ValueTask<TResult>> resultSelector)
         {
             if (enumerable == null) throw new ArgumentNullException("enumerable");
             if (collectionSelector == null) throw new ArgumentNullException("collectionSelector");
@@ -97,7 +97,7 @@ namespace ALinq
 
         public static IAsyncEnumerable<TResult> SelectMany<TSource, TCollection, TResult>(
             this IAsyncEnumerable<TSource> enumerable, 
-            Func<TSource, int, Task<IAsyncEnumerable<TCollection>>> collectionSelector, 
+            Func<TSource, int, ValueTask<IAsyncEnumerable<TCollection>>> collectionSelector, 
             Func<TSource, TCollection, TResult> resultSelector
         )
         {
@@ -110,11 +110,12 @@ namespace ALinq
                 await enumerable.ForEach(async state =>
                 {
                     var collection = await collectionSelector(state.Item, (int)state.Index).ConfigureAwait(false);
-                    await collection.ForEach(innerState =>
+                    await collection.ForEach(async innerState =>
                     {
                         var result = resultSelector(state.Item, innerState.Item);
-                        return  producer.Yield(result);
-                    }).ConfigureAwait(false);
+                        await producer.Yield(result);
+                    })
+                    .ConfigureAwait(false);
                 })
                 .ConfigureAwait(false);
             });
@@ -135,10 +136,10 @@ namespace ALinq
                 await enumerable.ForEach(async state =>
                 {
                     var collection = collectionSelector(state.Item, (int)state.Index);
-                    await collection.ForEach(innerState =>
+                    await collection.ForEach(async innerState =>
                     {
                         var result = resultSelector(state.Item, innerState.Item);
-                        return producer.Yield(result);
+                        await producer.Yield(result);
                     }).ConfigureAwait(false);
                 })
                 .ConfigureAwait(false);
@@ -149,7 +150,7 @@ namespace ALinq
         public static IAsyncEnumerable<TResult> SelectMany<TSource, TCollection, TResult>(
             this IAsyncEnumerable<TSource> enumerable, 
             Func<TSource, int, IAsyncEnumerable<TCollection>> collectionSelector, 
-            Func<TSource, TCollection, Task<TResult>> resultSelector
+            Func<TSource, TCollection, ValueTask<TResult>> resultSelector
         )
         {
             if (enumerable == null) throw new ArgumentNullException("enumerable");

@@ -29,7 +29,7 @@ namespace ALinq
             });
         }
 
-        public static IAsyncEnumerable<T> TakeWhile<T>(this IAsyncEnumerable<T> enumerable, Func<T, Task<bool>> predicate)
+        public static IAsyncEnumerable<T> TakeWhile<T>(this IAsyncEnumerable<T> enumerable, Func<T, ValueTask<bool>> predicate)
         {
             return TakeWhile(enumerable, (item, index) => predicate(item));
         }
@@ -39,7 +39,7 @@ namespace ALinq
             return TakeWhile(enumerable, (item, index) => predicate(item));
         }
 
-        public static IAsyncEnumerable<T> TakeWhile<T>(this IAsyncEnumerable<T> enumerable, Func<T, long, Task<bool>> predicate)
+        public static IAsyncEnumerable<T> TakeWhile<T>(this IAsyncEnumerable<T> enumerable, Func<T, long, ValueTask<bool>> predicate)
         {
             if (enumerable == null) throw new ArgumentNullException("enumerable");
             if (predicate == null) throw new ArgumentNullException("predicate");

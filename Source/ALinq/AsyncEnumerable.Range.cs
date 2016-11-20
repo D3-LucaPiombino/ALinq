@@ -32,11 +32,11 @@ namespace ALinq
             return RangeCore(start, count, step).ToAsync();
         }
 
-        private static IEnumerable<Task<int>> RangeCore(int start,int count,int step)
+        private static IEnumerable<ValueTask<int>> RangeCore(int start,int count,int step)
         {
             for( var i = start; i < start + count; i+= step)
             {
-                yield return Task.FromResult(i);
+                yield return new ValueTask<int>(i);
             }
         }
     }

@@ -7,7 +7,7 @@ namespace ALinq
     internal sealed class OrderedAsyncSequence<TKey,TElement> : OrderedAsyncEnumerable<TElement>
     {
         private readonly OrderedAsyncEnumerable<TElement>   parent;
-		private readonly Func<TElement, Task<TKey>>         keySelector;
+		private readonly Func<TElement, ValueTask<TKey>>         keySelector;
 		private readonly IComparer<TKey>                    comparer;
         private readonly bool                               descending;
 
@@ -30,13 +30,13 @@ namespace ALinq
             });
         }
 
-        internal OrderedAsyncSequence (OrderedAsyncEnumerable<TElement> parent, IAsyncEnumerable<TElement> source, Func<TElement, Task<TKey>> keySelector, IComparer<TKey> comparer, bool descending)
+        internal OrderedAsyncSequence (OrderedAsyncEnumerable<TElement> parent, IAsyncEnumerable<TElement> source, Func<TElement, ValueTask<TKey>> keySelector, IComparer<TKey> comparer, bool descending)
 			: this (source, keySelector, comparer, descending)
 		{
 			this.parent = parent;
 		}
 
-        internal OrderedAsyncSequence (IAsyncEnumerable<TElement> source, Func<TElement, Task<TKey>> keySelector, IComparer<TKey> comparer, bool descending)
+        internal OrderedAsyncSequence (IAsyncEnumerable<TElement> source, Func<TElement, ValueTask<TKey>> keySelector, IComparer<TKey> comparer, bool descending)
             : base (source)
         {
             this.keySelector    = keySelector;

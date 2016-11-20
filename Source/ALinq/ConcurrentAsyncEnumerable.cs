@@ -5,7 +5,7 @@ namespace ALinq
 {
     internal class ConcurrentAsyncEnumerable<T> : IAsyncEnumerable<T>
     {
-        private readonly Func<ConcurrentAsyncProducer<T>, Task> producerFunc;
+        private readonly Func<ConcurrentAsyncProducer<T>, ValueTask> producerFunc;
 
         IAsyncEnumerator<T> IAsyncEnumerable<T>.GetEnumerator()
         {
@@ -17,10 +17,9 @@ namespace ALinq
             return new ConcurrentAsyncEnumerator<T>(producerFunc);
         }
 
-        internal ConcurrentAsyncEnumerable(Func<ConcurrentAsyncProducer<T>, Task> producerFunc)
+        internal ConcurrentAsyncEnumerable(Func<ConcurrentAsyncProducer<T>, ValueTask> producerFunc)
         {
-            if (producerFunc == null) throw new ArgumentNullException("producerFunc");
-            this.producerFunc = producerFunc;
+            this.producerFunc = producerFunc ?? throw new ArgumentNullException("producerFunc");
         }
     }
 
@@ -33,9 +32,9 @@ namespace ALinq
 
             object IAsyncEnumerator.Current => Current;
 
-            public Task<bool> MoveNext()
+            public ValueTask<bool> MoveNext()
             {
-                return Task.FromResult(false);
+                return new ValueTask<bool>(false);
             }
         }
 

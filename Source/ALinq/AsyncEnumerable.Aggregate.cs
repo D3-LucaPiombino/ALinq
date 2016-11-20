@@ -6,15 +6,15 @@ namespace ALinq
 {
     public static partial class AsyncEnumerable
     {
-        public static Task<TSource> Aggregate<TSource>(
+        public static ValueTask<TSource> Aggregate<TSource>(
             this IAsyncEnumerable<TSource> enumerable,
-            Func<TSource, TSource, Task<TSource>> aggregationFunc
+            Func<TSource, TSource, ValueTask<TSource>> aggregationFunc
         )
         {
             return Aggregate(enumerable, default(TSource), aggregationFunc, result => result);
         }
 
-        public static Task<TSource> Aggregate<TSource>(
+        public static ValueTask<TSource> Aggregate<TSource>(
             this IAsyncEnumerable<TSource> enumerable,
             Func<TSource, TSource, TSource> aggregationFunc
         )
@@ -22,16 +22,16 @@ namespace ALinq
             return Aggregate(enumerable, default(TSource), aggregationFunc, result => result);
         }
 
-        public static Task<TAccumulate> Aggregate<TSource, TAccumulate>(
+        public static ValueTask<TAccumulate> Aggregate<TSource, TAccumulate>(
             this IAsyncEnumerable<TSource> enumerable,
             TAccumulate seed,
-            Func<TAccumulate, TSource, Task<TAccumulate>> aggregationFunc
+            Func<TAccumulate, TSource, ValueTask<TAccumulate>> aggregationFunc
         )
         {
             return Aggregate(enumerable, seed, aggregationFunc, result => result);
         }
 
-        public static Task<TAccumulate> Aggregate<TSource, TAccumulate>(
+        public static ValueTask<TAccumulate> Aggregate<TSource, TAccumulate>(
             this IAsyncEnumerable<TSource> enumerable,
             TAccumulate seed,
             Func<TAccumulate, TSource, TAccumulate> aggregationFunc
@@ -40,11 +40,11 @@ namespace ALinq
             return Aggregate(enumerable, seed, aggregationFunc, result => result);
         }
 
-        public static async Task<TResult> Aggregate<TSource, TAccumulate, TResult>(
+        public static async ValueTask<TResult> Aggregate<TSource, TAccumulate, TResult>(
             this IAsyncEnumerable<TSource> enumerable,
             TAccumulate seed,
-            Func<TAccumulate, TSource, Task<TAccumulate>> aggregationFunc,
-            Func<TAccumulate, Task<TResult>> resultSelector
+            Func<TAccumulate, TSource, ValueTask<TAccumulate>> aggregationFunc,
+            Func<TAccumulate, ValueTask<TResult>> resultSelector
         )
         {
             if (enumerable == null) throw new ArgumentNullException("enumerable");
@@ -61,10 +61,10 @@ namespace ALinq
             return await resultSelector(accumulator).ConfigureAwait(false);
         }
 
-        public static async Task<TResult> Aggregate<TSource, TAccumulate, TResult>(
+        public static async ValueTask<TResult> Aggregate<TSource, TAccumulate, TResult>(
             this IAsyncEnumerable<TSource> enumerable,
             TAccumulate seed,
-            Func<TAccumulate, TSource, Task<TAccumulate>> aggregationFunc,
+            Func<TAccumulate, TSource, ValueTask<TAccumulate>> aggregationFunc,
             Func<TAccumulate, TResult> resultSelector
         )
         {
@@ -82,11 +82,11 @@ namespace ALinq
             return resultSelector(accumulator);
         }
 
-        public static async Task<TResult> Aggregate<TSource, TAccumulate, TResult>(
+        public static async ValueTask<TResult> Aggregate<TSource, TAccumulate, TResult>(
             this IAsyncEnumerable<TSource> enumerable,
             TAccumulate seed,
             Func<TAccumulate, TSource, TAccumulate> aggregationFunc,
-            Func<TAccumulate, Task<TResult>> resultSelector
+            Func<TAccumulate, ValueTask<TResult>> resultSelector
         )
         {
             if (enumerable == null) throw new ArgumentNullException("enumerable");
@@ -100,7 +100,7 @@ namespace ALinq
             return await resultSelector(accumulator).ConfigureAwait(false);
         }
 
-        public static async Task<TResult> Aggregate<TSource, TAccumulate, TResult>(
+        public static async ValueTask<TResult> Aggregate<TSource, TAccumulate, TResult>(
             this IAsyncEnumerable<TSource> enumerable,
             TAccumulate seed,
             Func<TAccumulate, TSource, TAccumulate> aggregationFunc,

@@ -5,12 +5,12 @@ namespace ALinq
 {
     public static partial class AsyncEnumerable
     {
-        public static async Task<T> Single<T>(this IAsyncEnumerable<T> enumerable)
+        public static async ValueTask<T> Single<T>(this IAsyncEnumerable<T> enumerable)
         {
             return await Single(enumerable, item => true).ConfigureAwait(false);
         }
 
-        public static async Task<T> Single<T>(this IAsyncEnumerable<T> enumerable, Func<T, bool> predicate)
+        public static async ValueTask<T> Single<T>(this IAsyncEnumerable<T> enumerable, Func<T, bool> predicate)
         {
             if (enumerable == null) throw new ArgumentNullException("enumerable");
             if (predicate == null) throw new ArgumentNullException("predicate");
@@ -44,7 +44,7 @@ namespace ALinq
 
             throw new InvalidOperationException("Sequence contains more than one element");
         }
-        public static async Task<T> Single<T>(this IAsyncEnumerable<T> enumerable, Func<T, Task<bool>> predicate)
+        public static async ValueTask<T> Single<T>(this IAsyncEnumerable<T> enumerable, Func<T, ValueTask<bool>> predicate)
         {
             if (enumerable == null) throw new ArgumentNullException("enumerable");
             if (predicate == null) throw new ArgumentNullException("predicate");
@@ -79,12 +79,12 @@ namespace ALinq
             throw new InvalidOperationException("Sequence contains more than one element");
         }
 
-        public static async Task<T> SingleOrDefault<T>(this IAsyncEnumerable<T> enumerable)
+        public static async ValueTask<T> SingleOrDefault<T>(this IAsyncEnumerable<T> enumerable)
         {
             return await SingleOrDefault(enumerable, item => true).ConfigureAwait(false);
         }
 
-        public static async Task<T> SingleOrDefault<T>(this IAsyncEnumerable<T> enumerable, Func<T, Task<bool>> predicate)
+        public static async ValueTask<T> SingleOrDefault<T>(this IAsyncEnumerable<T> enumerable, Func<T, ValueTask<bool>> predicate)
         {
             if (enumerable == null) throw new ArgumentNullException("enumerable");
             if (predicate == null) throw new ArgumentNullException("predicate");
@@ -115,7 +115,7 @@ namespace ALinq
             return default(T);
         }
 
-        public static async Task<T> SingleOrDefault<T>(this IAsyncEnumerable<T> enumerable, Func<T, bool> predicate)
+        public static async ValueTask<T> SingleOrDefault<T>(this IAsyncEnumerable<T> enumerable, Func<T, bool> predicate)
         {
             if (enumerable == null) throw new ArgumentNullException("enumerable");
             if (predicate == null) throw new ArgumentNullException("predicate");

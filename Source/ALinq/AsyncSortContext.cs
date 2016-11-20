@@ -12,7 +12,7 @@ namespace ALinq
             get { return childContext; }
         }
 
-        internal abstract Task Initialize(TElement[] elements);
+        internal abstract ValueTask Initialize(TElement[] elements);
         internal abstract int  Compare(int firstIndex, int secondIndex);
 
         protected AsyncSortContext(AsyncSortContext<TElement> childContext,bool descending)

@@ -5,31 +5,31 @@ namespace ALinq
 {
     public static partial class AsyncEnumerable
     {
-        public static Task<int> Count<T>(this IAsyncEnumerable<T> enumerable, Func<T, Task<bool>> filter)
+        public static ValueTask<int> Count<T>(this IAsyncEnumerable<T> enumerable, Func<T, ValueTask<bool>> filter)
         {
             if (filter == null) throw new ArgumentNullException("filter");
             return Count(enumerable.Where(filter));
         }
 
-        public static Task<int> Count<T>(this IAsyncEnumerable<T> enumerable, Func<T, bool> filter)
+        public static ValueTask<int> Count<T>(this IAsyncEnumerable<T> enumerable, Func<T, bool> filter)
         {
             if (filter == null) throw new ArgumentNullException("filter");
             return Count(enumerable.Where(filter));
         }
 
-        public static Task<long> LongCount<T>(this IAsyncEnumerable<T> enumerable, Func<T, Task<bool>> filter)
+        public static ValueTask<long> LongCount<T>(this IAsyncEnumerable<T> enumerable, Func<T, ValueTask<bool>> filter)
         {
             if (filter == null) throw new ArgumentNullException("filter");
             return LongCount(enumerable.Where(filter));
         }
 
-        public static Task<long> LongCount<T>(this IAsyncEnumerable<T> enumerable, Func<T, bool> filter)
+        public static ValueTask<long> LongCount<T>(this IAsyncEnumerable<T> enumerable, Func<T, bool> filter)
         {
             if (filter == null) throw new ArgumentNullException("filter");
             return LongCount(enumerable.Where(filter));
         }
 
-        public static async Task<int> Count<T>(this IAsyncEnumerable<T> enumerable)
+        public static async ValueTask<int> Count<T>(this IAsyncEnumerable<T> enumerable)
         {
             if (enumerable == null) throw new ArgumentNullException("enumerable");
 
@@ -41,7 +41,7 @@ namespace ALinq
             return counter;
         }
 
-        public static async Task<long> LongCount<T>(this IAsyncEnumerable<T> enumerable)
+        public static async ValueTask<long> LongCount<T>(this IAsyncEnumerable<T> enumerable)
         {
             var counter = 0L;
             await enumerable

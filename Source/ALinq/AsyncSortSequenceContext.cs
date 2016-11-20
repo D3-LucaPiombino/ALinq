@@ -6,12 +6,12 @@ namespace ALinq
 {
     internal sealed class AsyncSortSequenceContext<TElement, TKey> : AsyncSortContext<TElement>
     {
-        private readonly Func<TElement, Task<TKey>> keySelector;
+        private readonly Func<TElement, ValueTask<TKey>> keySelector;
         private readonly IComparer<TKey>            comparer;
         private TKey[]                              keys;
 
         //[ConfigureAwait(false)]
-        internal override async Task Initialize(TElement[] elements)
+        internal override async ValueTask Initialize(TElement[] elements)
         {
             if (ChildContext != null)
             {
@@ -45,7 +45,7 @@ namespace ALinq
 
         public AsyncSortSequenceContext(
             AsyncSortContext<TElement> childContext,
-            Func<TElement, Task<TKey>> keySelector, 
+            Func<TElement, ValueTask<TKey>> keySelector, 
             IComparer<TKey> comparer,
             bool descending
         )

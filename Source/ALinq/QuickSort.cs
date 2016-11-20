@@ -10,7 +10,7 @@ namespace ALinq
         private readonly int[]                      indexes;
         private readonly AsyncSortContext<TElement> context;
 
-        internal static async Task<IEnumerable<TElement>> Sort(IEnumerable<TElement> source, AsyncSortContext<TElement> context)
+        internal static async ValueTask<IEnumerable<TElement>> Sort(IEnumerable<TElement> source, AsyncSortContext<TElement> context)
         {
             var sorter = new QuickSort<TElement>(source, context);
 
@@ -26,7 +26,7 @@ namespace ALinq
             return result;
         }
 
-        private async Task PerformSort()
+        private async ValueTask PerformSort()
         {
             if (elements.Length <= 1)
             {

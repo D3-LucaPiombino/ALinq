@@ -5,7 +5,7 @@ namespace ALinq
 {
     public static partial class AsyncEnumerable
     {
-        public static async Task<T> ElementAtOrDefault<T>(this IAsyncEnumerable<T> enumerable, int index)
+        public static async ValueTask<T> ElementAtOrDefault<T>(this IAsyncEnumerable<T> enumerable, int index)
         {
             if (enumerable == null) throw new ArgumentNullException("enumerable");
             if (index < 0) throw new ArgumentOutOfRangeException("index", "index must be zero or greater");
@@ -32,7 +32,7 @@ namespace ALinq
             return default(T);
         }
 
-        public static async Task<T> ElementAt<T>(this IAsyncEnumerable<T> enumerable, int index)
+        public static async ValueTask<T> ElementAt<T>(this IAsyncEnumerable<T> enumerable, int index)
         {
             if (enumerable == null) throw new ArgumentNullException("enumerable");
             if (index < 0) throw new ArgumentOutOfRangeException("index", "index must be zero or greater");

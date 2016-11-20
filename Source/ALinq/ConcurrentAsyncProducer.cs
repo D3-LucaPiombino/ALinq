@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -6,18 +7,16 @@ namespace ALinq
 {
     public sealed class ConcurrentAsyncProducer<T>
     {
-        private readonly Func<T,Task> notificationFunc;
+        private readonly Func<T, ValueTask> notificationFunc;
      
-        public Task Yield(T item)
+        public ValueTask Yield(T item)
         {
             return notificationFunc(item);
         }
 
-        internal ConcurrentAsyncProducer(Func<T,Task> notificationFunc, CancellationToken cancellationToken)
+        internal ConcurrentAsyncProducer(Func<T, ValueTask> notificationFunc, CancellationToken cancellationToken)
         {
-            if (notificationFunc == null) throw new ArgumentNullException("notificationFunc");
-
-            this.notificationFunc = notificationFunc;
+            this.notificationFunc = notificationFunc ?? throw new ArgumentNullException("notificationFunc");
             CancellationToken = cancellationToken;
         }
 
